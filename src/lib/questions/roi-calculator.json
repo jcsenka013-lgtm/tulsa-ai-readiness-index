@@ -1,0 +1,340 @@
+{
+  "version": "1.0.0",
+  "description": "ROI model for the Tulsa Applied AI Readiness Audit. This structure drives both the interactive calculator UI and the server-side projection math. Assumptions reflect current (2026) generally-available AI + automation capabilities for SMBs running Microsoft 365 / Copilot, Azure OpenAI, Power Automate, and modern LOB integrations.",
+  "inputs": {
+    "industry": {
+      "label": "Which industry best describes your business?",
+      "type": "single_select",
+      "options": [
+        { "id": "dental", "label": "Dental practice" },
+        { "id": "insurance", "label": "Insurance agency (P&C or life/health)" },
+        { "id": "legal", "label": "Law firm" },
+        { "id": "oil_gas", "label": "Oil & gas field services" }
+      ]
+    },
+    "admin_headcount": {
+      "label": "How many employees spend the majority of their time on administrative / back-office work?",
+      "help_text": "Include schedulers, CSRs, paralegals, dispatchers, billing clerks, and intake staff. Exclude licensed/revenue-producing roles.",
+      "type": "number",
+      "min": 1,
+      "max": 200,
+      "default": 5
+    },
+    "loaded_labor_cost_per_hour": {
+      "label": "Average loaded labor cost per hour for those admin staff",
+      "help_text": "Loaded = wage + payroll taxes + benefits + overhead. Use our industry default if you're unsure.",
+      "type": "number",
+      "min": 15,
+      "max": 150,
+      "industry_defaults": {
+        "dental": 32,
+        "insurance": 38,
+        "legal": 55,
+        "oil_gas": 42
+      }
+    }
+  },
+  "global_assumptions": {
+    "working_weeks_per_year": 50,
+    "working_hours_per_week": 40,
+    "productivity_reinvestment_factor": 0.85,
+    "productivity_reinvestment_note": "Not every saved hour converts to cash. We multiply raw labor savings by 0.85 to reflect the portion that realistically translates to revenue-producing work, reduced overtime, or deferred hiring.",
+    "default_confidence_bands": {
+      "conservative_multiplier": 0.6,
+      "likely_multiplier": 1.0,
+      "optimistic_multiplier": 1.25
+    }
+  },
+  "calculations": {
+    "current_annual_cost_per_process": "hours_per_week * staff_involved * loaded_labor_cost_per_hour * working_weeks_per_year",
+    "projected_annual_savings_per_process_conservative": "current_annual_cost_per_process * automation_percentage.min * productivity_reinvestment_factor",
+    "projected_annual_savings_per_process_likely": "current_annual_cost_per_process * automation_percentage.likely * productivity_reinvestment_factor",
+    "projected_annual_savings_per_process_optimistic": "current_annual_cost_per_process * automation_percentage.max * productivity_reinvestment_factor",
+    "total_annual_savings_conservative": "sum over selected processes of projected_annual_savings_per_process_conservative",
+    "total_annual_savings_likely": "sum over selected processes of projected_annual_savings_per_process_likely",
+    "total_annual_savings_optimistic": "sum over selected processes of projected_annual_savings_per_process_optimistic",
+    "implementation_cost_min": "sum over selected processes of implementation_cost.min",
+    "implementation_cost_max": "sum over selected processes of implementation_cost.max",
+    "implementation_cost_point_estimate": "(implementation_cost_min + implementation_cost_max) / 2",
+    "annual_subscription_cost": "admin_headcount * per_user_ai_license_cost_annual + platform_fixed_annual",
+    "payback_period_months_likely": "(implementation_cost_point_estimate) / ((total_annual_savings_likely - annual_subscription_cost) / 12)",
+    "three_year_net_roi_likely": "(total_annual_savings_likely * 3) - implementation_cost_point_estimate - (annual_subscription_cost * 3)",
+    "three_year_net_roi_percentage_likely": "three_year_net_roi_likely / (implementation_cost_point_estimate + (annual_subscription_cost * 3)) * 100"
+  },
+  "ongoing_cost_assumptions": {
+    "per_user_ai_license_cost_annual": 360,
+    "per_user_ai_license_note": "Approximate blended cost of Copilot for Microsoft 365 ($30/user/month) across admin users. Adjust at pilot scope.",
+    "platform_fixed_annual": 6000,
+    "platform_fixed_note": "Average blended cost of Azure OpenAI consumption, Power Automate premium connectors, and marginal Purview/Intune licensing for a 20-200 person SMB."
+  },
+  "industries": [
+    {
+      "id": "dental",
+      "label": "Dental practice",
+      "processes": [
+        {
+          "id": "dental_insurance_verification",
+          "label": "Insurance verification / eligibility checks",
+          "description": "Calling or logging into payer portals to verify benefits before appointments.",
+          "default_hours_per_week_per_practice": 15,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.55, "likely": 0.75, "max": 0.9 },
+          "implementation_cost": { "min": 8000, "max": 22000 },
+          "notes": "Bot + AI summarizer against payer portals / Zuub / Trojan integrations."
+        },
+        {
+          "id": "dental_scheduling_reminders",
+          "label": "Appointment scheduling and reminder calls",
+          "description": "Outbound reminders, reschedules, confirmation text/calls.",
+          "default_hours_per_week_per_practice": 12,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.5, "likely": 0.7, "max": 0.85 },
+          "implementation_cost": { "min": 4000, "max": 12000 }
+        },
+        {
+          "id": "dental_treatment_plan_letters",
+          "label": "Treatment plan letter generation",
+          "description": "Post-consult narrative letters explaining recommended treatment.",
+          "default_hours_per_week_per_practice": 6,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.6, "likely": 0.8, "max": 0.9 },
+          "implementation_cost": { "min": 3500, "max": 9000 }
+        },
+        {
+          "id": "dental_claims_followup",
+          "label": "Claims follow-up with payers",
+          "description": "Chasing open / denied claims and rework.",
+          "default_hours_per_week_per_practice": 10,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.4, "likely": 0.6, "max": 0.8 },
+          "implementation_cost": { "min": 6000, "max": 18000 }
+        },
+        {
+          "id": "dental_chart_note_drafting",
+          "label": "Chart / clinical note drafting",
+          "description": "AI-assisted dictation-to-SOAP-note for operatory notes.",
+          "default_hours_per_week_per_practice": 14,
+          "default_staff_involved": 3,
+          "realistic_automation_percentage": { "min": 0.4, "likely": 0.65, "max": 0.8 },
+          "implementation_cost": { "min": 5000, "max": 15000 }
+        },
+        {
+          "id": "dental_patient_intake",
+          "label": "Patient intake and medical history forms",
+          "description": "New-patient forms, HIPAA acknowledgments, medical history digitization.",
+          "default_hours_per_week_per_practice": 8,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.5, "likely": 0.75, "max": 0.9 },
+          "implementation_cost": { "min": 3000, "max": 10000 }
+        }
+      ]
+    },
+    {
+      "id": "insurance",
+      "label": "Insurance agency",
+      "processes": [
+        {
+          "id": "insurance_quote_generation",
+          "label": "Quote generation across carriers",
+          "description": "Re-keying risk details across carrier portals to get quotes.",
+          "default_hours_per_week_per_agency": 18,
+          "default_staff_involved": 3,
+          "realistic_automation_percentage": { "min": 0.4, "likely": 0.6, "max": 0.8 },
+          "implementation_cost": { "min": 10000, "max": 30000 }
+        },
+        {
+          "id": "insurance_renewal_processing",
+          "label": "Policy renewal processing",
+          "description": "Renewal workflows, re-shopping, endorsements, change requests.",
+          "default_hours_per_week_per_agency": 15,
+          "default_staff_involved": 3,
+          "realistic_automation_percentage": { "min": 0.35, "likely": 0.55, "max": 0.75 },
+          "implementation_cost": { "min": 8000, "max": 25000 }
+        },
+        {
+          "id": "insurance_claims_intake",
+          "label": "First-notice-of-loss / claims intake",
+          "description": "Capturing and routing claims to carriers with documentation.",
+          "default_hours_per_week_per_agency": 8,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.45, "likely": 0.7, "max": 0.85 },
+          "implementation_cost": { "min": 5000, "max": 15000 }
+        },
+        {
+          "id": "insurance_coi_generation",
+          "label": "Certificate of Insurance (COI) generation",
+          "description": "High-volume ACORD 25/27 certificate creation and fulfillment.",
+          "default_hours_per_week_per_agency": 10,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.6, "likely": 0.85, "max": 0.95 },
+          "implementation_cost": { "min": 4000, "max": 12000 }
+        },
+        {
+          "id": "insurance_appetite_matching",
+          "label": "Carrier appetite matching",
+          "description": "Matching a new risk to which carriers will write it.",
+          "default_hours_per_week_per_agency": 8,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.4, "likely": 0.65, "max": 0.8 },
+          "implementation_cost": { "min": 6000, "max": 18000 }
+        },
+        {
+          "id": "insurance_commission_reconciliation",
+          "label": "Commission reconciliation",
+          "description": "Matching carrier commission statements to expected amounts.",
+          "default_hours_per_week_per_agency": 6,
+          "default_staff_involved": 1,
+          "realistic_automation_percentage": { "min": 0.5, "likely": 0.75, "max": 0.9 },
+          "implementation_cost": { "min": 5000, "max": 14000 }
+        }
+      ]
+    },
+    {
+      "id": "legal",
+      "label": "Law firm",
+      "processes": [
+        {
+          "id": "legal_document_review",
+          "label": "Document review and summarization",
+          "description": "First-pass review / summary of discovery, contracts, regulatory filings.",
+          "default_hours_per_week_per_firm": 20,
+          "default_staff_involved": 3,
+          "realistic_automation_percentage": { "min": 0.45, "likely": 0.7, "max": 0.85 },
+          "implementation_cost": { "min": 10000, "max": 30000 }
+        },
+        {
+          "id": "legal_intake_questionnaires",
+          "label": "Client intake questionnaires",
+          "description": "Conflict checks, engagement intake, scoping interviews.",
+          "default_hours_per_week_per_firm": 8,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.5, "likely": 0.7, "max": 0.85 },
+          "implementation_cost": { "min": 4000, "max": 12000 }
+        },
+        {
+          "id": "legal_research_memos",
+          "label": "Legal research memos",
+          "description": "Generating first-draft legal research memos on specific issues.",
+          "default_hours_per_week_per_firm": 12,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.4, "likely": 0.6, "max": 0.75 },
+          "implementation_cost": { "min": 8000, "max": 22000 }
+        },
+        {
+          "id": "legal_deposition_summaries",
+          "label": "Deposition summary drafting",
+          "description": "Summary and timeline generation from deposition transcripts.",
+          "default_hours_per_week_per_firm": 10,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.55, "likely": 0.8, "max": 0.9 },
+          "implementation_cost": { "min": 5000, "max": 14000 }
+        },
+        {
+          "id": "legal_billing_narratives",
+          "label": "Billing narrative cleanup",
+          "description": "Re-writing time entries into client-ready, compliant billing narratives.",
+          "default_hours_per_week_per_firm": 8,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.6, "likely": 0.85, "max": 0.95 },
+          "implementation_cost": { "min": 3500, "max": 10000 }
+        },
+        {
+          "id": "legal_contract_redlining",
+          "label": "Contract redlining — first pass",
+          "description": "First-pass playbook-based contract markup before attorney review.",
+          "default_hours_per_week_per_firm": 10,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.4, "likely": 0.65, "max": 0.8 },
+          "implementation_cost": { "min": 8000, "max": 24000 }
+        }
+      ]
+    },
+    {
+      "id": "oil_gas",
+      "label": "Oil & gas field services",
+      "processes": [
+        {
+          "id": "og_field_ticket_processing",
+          "label": "Field ticket processing",
+          "description": "Capturing, correcting, and routing field tickets for billing.",
+          "default_hours_per_week_per_company": 18,
+          "default_staff_involved": 3,
+          "realistic_automation_percentage": { "min": 0.5, "likely": 0.75, "max": 0.9 },
+          "implementation_cost": { "min": 10000, "max": 28000 }
+        },
+        {
+          "id": "og_dispatch_optimization",
+          "label": "Dispatch and routing optimization",
+          "description": "Assigning crews and equipment against job queues and geography.",
+          "default_hours_per_week_per_company": 14,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.3, "likely": 0.55, "max": 0.75 },
+          "implementation_cost": { "min": 12000, "max": 35000 }
+        },
+        {
+          "id": "og_inspection_reports",
+          "label": "Inspection report generation",
+          "description": "Drafting inspection / well-service reports from field notes and photos.",
+          "default_hours_per_week_per_company": 10,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.5, "likely": 0.75, "max": 0.9 },
+          "implementation_cost": { "min": 6000, "max": 18000 }
+        },
+        {
+          "id": "og_compliance_documentation",
+          "label": "Compliance and regulatory documentation",
+          "description": "OCC / RRC / OSHA / environmental compliance documentation.",
+          "default_hours_per_week_per_company": 12,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.35, "likely": 0.6, "max": 0.8 },
+          "implementation_cost": { "min": 8000, "max": 22000 }
+        },
+        {
+          "id": "og_inventory_reconciliation",
+          "label": "Yard / inventory reconciliation",
+          "description": "Reconciling consumables, rentals, and returns across yards and jobs.",
+          "default_hours_per_week_per_company": 10,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.4, "likely": 0.6, "max": 0.8 },
+          "implementation_cost": { "min": 6000, "max": 16000 }
+        },
+        {
+          "id": "og_invoice_matching",
+          "label": "Invoice matching and AP review",
+          "description": "3-way match of POs, field tickets, and vendor invoices.",
+          "default_hours_per_week_per_company": 12,
+          "default_staff_involved": 2,
+          "realistic_automation_percentage": { "min": 0.5, "likely": 0.75, "max": 0.9 },
+          "implementation_cost": { "min": 7000, "max": 20000 }
+        }
+      ]
+    }
+  ],
+  "output_schema": {
+    "per_process": [
+      "process_id",
+      "process_label",
+      "hours_per_week_input",
+      "staff_involved_input",
+      "current_annual_cost",
+      "projected_annual_savings_conservative",
+      "projected_annual_savings_likely",
+      "projected_annual_savings_optimistic",
+      "implementation_cost_min",
+      "implementation_cost_max"
+    ],
+    "summary": [
+      "total_current_annual_cost",
+      "total_annual_savings_conservative",
+      "total_annual_savings_likely",
+      "total_annual_savings_optimistic",
+      "implementation_cost_min",
+      "implementation_cost_max",
+      "implementation_cost_point_estimate",
+      "annual_subscription_cost",
+      "payback_period_months_likely",
+      "three_year_net_roi_likely",
+      "three_year_net_roi_percentage_likely"
+    ]
+  }
+}

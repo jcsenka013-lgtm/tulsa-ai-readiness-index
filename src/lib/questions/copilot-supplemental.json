@@ -1,0 +1,181 @@
+{
+  "version": "1.0.0",
+  "domain_mapping": {
+    "COPILOT_LICENSE": "technology_infrastructure",
+    "COPILOT_INTENT": "financial_strategic_alignment",
+    "SHAREPOINT_OVERSHARING": "data_security_compliance",
+    "SENSITIVITY_LABELS": "data_security_compliance",
+    "DATA_HYGIENE_CADENCE": "operational_process_maturity"
+  },
+  "questions": [
+    {
+      "id": "COPILOT_LICENSE",
+      "domain": "technology_infrastructure",
+      "tier": "free",
+      "type": "single_select",
+      "weight": 2,
+      "text": "What's your current Microsoft 365 Copilot licensing situation?",
+      "help_text": "Copilot requires a qualifying base license (M365 Business Basic/Standard/Premium, or E3/E5) plus a separate Copilot add-on. Business Premium + Copilot Business is the most common SMB configuration at about $32/user/month.",
+      "options": [
+        {
+          "label": "We're actively using Copilot on 5+ users",
+          "score_value": 4,
+          "m365_signal": "copilot_active"
+        },
+        {
+          "label": "We've purchased seats but adoption is low",
+          "score_value": 2,
+          "m365_signal": "copilot_purchased_low_adoption"
+        },
+        {
+          "label": "We're evaluating — haven't bought seats yet",
+          "score_value": 3,
+          "m365_signal": "copilot_evaluating"
+        },
+        {
+          "label": "We have M365 but haven't thought about Copilot",
+          "score_value": 2,
+          "m365_signal": "copilot_not_considered"
+        },
+        {
+          "label": "We don't use Microsoft 365",
+          "score_value": 0,
+          "m365_signal": "not_m365_tenant"
+        }
+      ]
+    },
+    {
+      "id": "COPILOT_INTENT",
+      "domain": "financial_strategic_alignment",
+      "tier": "free",
+      "type": "single_select",
+      "weight": 2,
+      "text": "What's driving your interest in Copilot specifically?",
+      "help_text": "Understanding the 'why' helps determine whether Copilot is the right tool or whether a simpler solution (or different AI tool) would serve you better.",
+      "options": [
+        {
+          "label": "Clear use cases — we know exactly what we want it to do",
+          "score_value": 4
+        },
+        {
+          "label": "General productivity boost across the team",
+          "score_value": 3
+        },
+        {
+          "label": "Peer pressure — competitors or peers are using it",
+          "score_value": 1
+        },
+        {
+          "label": "Microsoft rep is pushing us",
+          "score_value": 1
+        },
+        {
+          "label": "Vague sense that we should be doing 'AI'",
+          "score_value": 1
+        }
+      ]
+    },
+    {
+      "id": "SHAREPOINT_OVERSHARING",
+      "domain": "data_security_compliance",
+      "tier": "free",
+      "type": "single_select",
+      "weight": 3,
+      "text": "If we ran a report today, how many of your SharePoint sites would be shared with 'Everyone' or 'Everyone except external users'?",
+      "help_text": "This is the single biggest Copilot deployment risk. Copilot searches content the user has permission to see — so oversharing today means Copilot surfacing sensitive files to everyone tomorrow. The enterprise average is 340+ sites. The SMB ratio is often worse because permissions weren't reviewed from day one.",
+      "options": [
+        {
+          "label": "None — we audit permissions quarterly",
+          "score_value": 4,
+          "m365_signal": "sharepoint_permissions_audited"
+        },
+        {
+          "label": "A few, but they're intentional (company-wide announcements, etc.)",
+          "score_value": 3
+        },
+        {
+          "label": "Some — we haven't looked in a while",
+          "score_value": 1,
+          "m365_signal": "sharepoint_permissions_unknown"
+        },
+        {
+          "label": "Probably most of them — we never set strict permissions",
+          "score_value": 0,
+          "m365_signal": "sharepoint_oversharing_critical"
+        },
+        {
+          "label": "I don't know what SharePoint is",
+          "score_value": 0,
+          "m365_signal": "sharepoint_unknown"
+        }
+      ]
+    },
+    {
+      "id": "SENSITIVITY_LABELS",
+      "domain": "data_security_compliance",
+      "tier": "free",
+      "type": "single_select",
+      "weight": 2,
+      "text": "Are Microsoft Purview sensitivity labels deployed in your tenant?",
+      "help_text": "Sensitivity labels tag files as Public, Internal, Confidential, etc. Copilot respects these labels — it won't surface a 'Confidential' document to users who shouldn't see it. Without labels, Copilot treats everything as equally accessible. Microsoft recommends 70%+ of SharePoint/OneDrive content be labeled before Copilot deployment.",
+      "options": [
+        {
+          "label": "Yes, 70%+ of our content is labeled and auto-labeling is active",
+          "score_value": 4,
+          "m365_signal": "purview_mature"
+        },
+        {
+          "label": "Yes, but coverage is under 50%",
+          "score_value": 2,
+          "m365_signal": "purview_partial"
+        },
+        {
+          "label": "We've set up a few labels as a pilot",
+          "score_value": 1,
+          "m365_signal": "purview_pilot"
+        },
+        {
+          "label": "No, we've never set these up",
+          "score_value": 0,
+          "m365_signal": "purview_not_deployed"
+        },
+        {
+          "label": "I don't know / never heard of Purview",
+          "score_value": 0,
+          "m365_signal": "purview_unknown"
+        }
+      ]
+    },
+    {
+      "id": "DATA_HYGIENE_CADENCE",
+      "domain": "operational_process_maturity",
+      "tier": "free",
+      "type": "single_select",
+      "weight": 2,
+      "text": "How confident are you that the documents in your SharePoint/OneDrive are accurate and current?",
+      "help_text": "Copilot is only as good as the data it reads. If your shared drives are full of outdated pricing, old policies, and conflicting versions, Copilot will confidently give wrong answers to your team.",
+      "options": [
+        {
+          "label": "Very confident — we have document lifecycle policies",
+          "score_value": 4
+        },
+        {
+          "label": "Mostly confident — key documents are well-maintained",
+          "score_value": 3
+        },
+        {
+          "label": "Some parts are clean, others are a mess",
+          "score_value": 2
+        },
+        {
+          "label": "Not confident at all — it's a graveyard of old files",
+          "score_value": 0
+        },
+        {
+          "label": "I honestly don't know",
+          "score_value": 1
+        }
+      ]
+    }
+  ]
+}

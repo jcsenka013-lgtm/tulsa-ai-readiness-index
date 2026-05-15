@@ -1,0 +1,840 @@
+{
+  "version": "1.0.0",
+  "scoring_scale": {
+    "0": "no awareness or posture absent",
+    "1": "minimal / ad-hoc",
+    "2": "basic / partially deployed",
+    "3": "mature / fully deployed",
+    "4": "advanced / optimized"
+  },
+  "scoring_formula": "domain_score = sum(question_score * question_weight) / max_possible * 100  where max_possible = sum(4 * question_weight)",
+  "tiers": {
+    "free": "Shown in free ReadyScore assessment. 2 highest-signal questions per domain (10 total).",
+    "paid": "Shown only in full paid audit along with all free-tier questions."
+  },
+  "readiness_tier_thresholds": {
+    "foundation": [0, 39],
+    "exploration": [40, 59],
+    "pilot": [60, 79],
+    "scale": [80, 100]
+  },
+  "domains": [
+    {
+      "id": "data_security_compliance",
+      "name": "Data Security & Compliance Posture",
+      "description": "How well your Microsoft 365 / Entra ID tenant and data-protection program are prepared to safely enable Copilot and other AI tools without leaking regulated or confidential information.",
+      "weight": 25,
+      "questions": [
+        {
+          "id": "ds_license_tier",
+          "domain": "data_security_compliance",
+          "text": "Which Microsoft 365 license tier covers the majority of your employees today?",
+          "help_text": "Your M365 license determines which security and AI features are available. Copilot for Microsoft 365 requires a qualifying base license (Business Standard / Premium / E3 / E5) plus a Copilot add-on, and many data-protection features we'll ask about below are only unlocked at Business Premium or E5.",
+          "question_type": "single_select",
+          "weight": 12,
+          "tier": "free",
+          "options": [
+            { "label": "No Microsoft 365 / we use Google Workspace or other", "score_value": 0 },
+            { "label": "Microsoft 365 Business Basic (web apps only)", "score_value": 1 },
+            { "label": "Microsoft 365 Business Standard", "score_value": 2 },
+            { "label": "Microsoft 365 Business Premium", "score_value": 3 },
+            { "label": "Microsoft 365 E3", "score_value": 3 },
+            { "label": "Microsoft 365 E5 (includes advanced Purview + Defender)", "score_value": 4 },
+            { "label": "I'm not sure", "score_value": 0 }
+          ]
+        },
+        {
+          "id": "ds_mfa_coverage",
+          "domain": "data_security_compliance",
+          "text": "Who in your organization is required to use multi-factor authentication (MFA) to sign in?",
+          "help_text": "MFA means signing in with a password plus a second factor (phone app, text code, hardware key). It's the single most effective control against account takeover and is a prerequisite before turning on Copilot or any AI that reads company data.",
+          "question_type": "single_select",
+          "weight": 10,
+          "tier": "free",
+          "options": [
+            { "label": "No one / MFA is not enforced", "score_value": 0 },
+            { "label": "Only a few admins use it voluntarily", "score_value": 1 },
+            { "label": "All admin accounts are required to use MFA", "score_value": 2 },
+            { "label": "All users are required to use MFA", "score_value": 3 },
+            { "label": "All users on MFA plus phishing-resistant methods (FIDO2 / Authenticator number matching)", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "ds_sensitivity_labels",
+          "domain": "data_security_compliance",
+          "text": "How are Microsoft Purview Sensitivity Labels deployed in your tenant?",
+          "help_text": "Sensitivity Labels are tags (e.g. Public, Internal, Confidential, Highly Confidential) you apply to files, emails, and Teams sites. They drive encryption, watermarks, and control whether Copilot can use a document. Without labels, Copilot surfaces whatever a user can open — including data they probably shouldn't be reusing.",
+          "question_type": "single_select",
+          "weight": 10,
+          "tier": "paid",
+          "options": [
+            { "label": "Not deployed / not familiar", "score_value": 0 },
+            { "label": "Labels exist but users rarely apply them", "score_value": 1 },
+            { "label": "Manual labeling in use, training delivered", "score_value": 2 },
+            { "label": "Auto-labeling rules applied to SharePoint / OneDrive / Exchange", "score_value": 3 },
+            { "label": "Auto-labeling + encryption + DLP integration across all locations", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "ds_dlp_coverage",
+          "domain": "data_security_compliance",
+          "text": "How much coverage do your Purview Data Loss Prevention (DLP) policies have?",
+          "help_text": "DLP policies automatically detect and block sensitive data (SSNs, payment cards, PHI, policy numbers) from being emailed, shared externally, or uploaded to unmanaged apps. Essential for HIPAA, state bar confidentiality rules, and keeping regulated data out of public AI tools.",
+          "question_type": "single_select",
+          "weight": 9,
+          "tier": "paid",
+          "options": [
+            { "label": "No DLP policies configured", "score_value": 0 },
+            { "label": "Default/template policies enabled in audit mode only", "score_value": 1 },
+            { "label": "Policies covering email + OneDrive/SharePoint, some in enforce mode", "score_value": 2 },
+            { "label": "Full coverage incl. Teams + endpoints, enforcement on", "score_value": 3 },
+            { "label": "Adaptive DLP tuned with industry-specific classifiers and regular policy review", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "ds_information_protection",
+          "domain": "data_security_compliance",
+          "text": "How is your sensitive data classified and inventoried today?",
+          "help_text": "Before AI can safely summarize your data you need to know where the regulated stuff lives. Purview Information Protection and Data Map scan SharePoint, OneDrive, file shares, and databases to identify PHI, PII, financial data, and privileged matter files.",
+          "question_type": "single_select",
+          "weight": 7,
+          "tier": "paid",
+          "options": [
+            { "label": "No classification — we don't know what we have or where", "score_value": 0 },
+            { "label": "Informal folder conventions only", "score_value": 1 },
+            { "label": "Some scanning via Purview or a third-party tool", "score_value": 2 },
+            { "label": "Purview Information Protection deployed across all cloud locations", "score_value": 3 },
+            { "label": "Automated classification + data-map dashboards reviewed quarterly", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "ds_defender_cloud_apps",
+          "domain": "data_security_compliance",
+          "text": "Which Microsoft Defender products do you have deployed?",
+          "help_text": "Defender for Office 365 protects email from phishing. Defender for Cloud Apps gives visibility into shadow IT (which unsanctioned SaaS and AI tools employees are using). Defender for Endpoint protects laptops. These are what stop employees from pasting client data into random AI websites.",
+          "question_type": "multi_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "None", "score_value": 0 },
+            { "label": "Defender for Office 365 (email)", "score_value": 2 },
+            { "label": "Defender for Endpoint (devices)", "score_value": 3 },
+            { "label": "Defender for Cloud Apps (shadow-IT / CASB)", "score_value": 3 },
+            { "label": "Defender for Identity", "score_value": 3 },
+            { "label": "Microsoft 365 Defender XDR — fully integrated", "score_value": 4 },
+            { "label": "Not sure", "score_value": 0 }
+          ]
+        },
+        {
+          "id": "ds_conditional_access",
+          "domain": "data_security_compliance",
+          "text": "How mature are your Conditional Access policies in Entra ID?",
+          "help_text": "Conditional Access is the traffic cop for sign-ins — it enforces rules like 'require MFA from unknown locations', 'block legacy auth', or 'only managed devices can reach SharePoint'. Required for a Zero Trust posture before turning on Copilot.",
+          "question_type": "single_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "None / not using Conditional Access", "score_value": 0 },
+            { "label": "Basic MFA-required policy only", "score_value": 1 },
+            { "label": "Block legacy auth + MFA for all users", "score_value": 2 },
+            { "label": "Device compliance and risk-based policies in place", "score_value": 3 },
+            { "label": "Zero Trust model — identity + device + app + session controls", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "ds_external_sharing",
+          "domain": "data_security_compliance",
+          "text": "How are external sharing and guest access controlled in SharePoint, OneDrive, and Teams?",
+          "help_text": "Default M365 tenants often allow 'anyone with the link' sharing. For regulated industries this is a breach waiting to happen, and Copilot will happily summarize whatever guests can see.",
+          "question_type": "single_select",
+          "weight": 6,
+          "tier": "paid",
+          "options": [
+            { "label": "Anyone-with-link sharing allowed by default", "score_value": 0 },
+            { "label": "Mostly unrestricted, no auditing", "score_value": 1 },
+            { "label": "Guest access restricted, sharing limited to specific domains", "score_value": 2 },
+            { "label": "Guest lifecycle managed, access reviews run periodically", "score_value": 3 },
+            { "label": "Fully governed — entitlement management + access reviews + expiration", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "ds_audit_retention",
+          "domain": "data_security_compliance",
+          "text": "What is your audit log and eDiscovery retention posture?",
+          "help_text": "Audit logs tell you who accessed what, when, and from where. State bar rules, HIPAA, and many contracts require you to reproduce that history months or years later. Standard M365 retains only 90–180 days; Premium/E5 extend this to a year or more.",
+          "question_type": "single_select",
+          "weight": 6,
+          "tier": "paid",
+          "options": [
+            { "label": "No audit logging enabled / unknown", "score_value": 0 },
+            { "label": "Default 90-day retention", "score_value": 1 },
+            { "label": "1-year retention via E5 / add-on", "score_value": 2 },
+            { "label": "Long-term retention + eDiscovery Premium in use", "score_value": 3 },
+            { "label": "SIEM export + 7-year retention for regulated data", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "ds_compliance_requirements",
+          "domain": "data_security_compliance",
+          "text": "Which regulatory or contractual requirements apply to your business?",
+          "help_text": "These frameworks dictate what data you must protect and how. Knowing which apply shapes whether Copilot, Azure OpenAI with your own tenant, or an on-prem solution is the right fit.",
+          "question_type": "multi_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "HIPAA (patient health information)", "score_value": 2 },
+            { "label": "Oklahoma Bar / attorney-client privilege", "score_value": 2 },
+            { "label": "State insurance regulations / NAIC data standards", "score_value": 2 },
+            { "label": "SOC 2 obligations to customers", "score_value": 3 },
+            { "label": "PCI-DSS (card payments)", "score_value": 2 },
+            { "label": "Oil & gas data sovereignty / operator MSA confidentiality", "score_value": 2 },
+            { "label": "No formal requirements", "score_value": 1 },
+            { "label": "Not sure", "score_value": 0 }
+          ]
+        },
+        {
+          "id": "ds_data_residency",
+          "domain": "data_security_compliance",
+          "text": "Where does your business-critical data live today?",
+          "help_text": "Data residency affects which AI services you can legally use. Copilot processes data in the same Microsoft region as your tenant; an on-prem-only posture will require different AI architectures (local models, private endpoints).",
+          "question_type": "single_select",
+          "weight": 5,
+          "tier": "paid",
+          "options": [
+            { "label": "Entirely on-premise / local file servers", "score_value": 1 },
+            { "label": "Mostly on-prem with some cloud email", "score_value": 2 },
+            { "label": "Hybrid — balanced on-prem and cloud", "score_value": 2 },
+            { "label": "Primarily cloud (M365, SharePoint, OneDrive)", "score_value": 3 },
+            { "label": "Cloud-native with documented residency controls", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "ds_dpa_in_place",
+          "domain": "data_security_compliance",
+          "text": "Do you have signed Data Processing Agreements (DPAs) or Business Associate Agreements (BAAs) with your key vendors?",
+          "help_text": "Any SaaS or AI tool that touches regulated data needs a signed BAA (HIPAA) or DPA. If you're on ChatGPT free, Grammarly free, or any consumer AI tool, regulated data shouldn't be going into it.",
+          "question_type": "single_select",
+          "weight": 5,
+          "tier": "paid",
+          "options": [
+            { "label": "None in place / never checked", "score_value": 0 },
+            { "label": "Some — for obvious vendors like M365", "score_value": 1 },
+            { "label": "DPAs/BAAs for all major vendors", "score_value": 2 },
+            { "label": "Tracked centrally, reviewed annually", "score_value": 3 },
+            { "label": "Formal vendor-risk program with tiering", "score_value": 4 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "operational_process_maturity",
+      "name": "Operational Process Maturity",
+      "description": "How documented and structured your day-to-day workflows are — the lower-friction those processes are, the more of them AI can automate.",
+      "weight": 25,
+      "questions": [
+        {
+          "id": "op_time_consuming_processes",
+          "domain": "operational_process_maturity",
+          "text": "Which repetitive processes eat up the most staff time each week? Select all that apply.",
+          "help_text": "These are the highest-value AI automation targets. We'll use this to shape the ROI calculator downstream.",
+          "question_type": "multi_select",
+          "weight": 14,
+          "tier": "free",
+          "options": [
+            { "label": "Insurance verification / eligibility checks", "score_value": 2 },
+            { "label": "Scheduling, confirmations, and reminder calls", "score_value": 2 },
+            { "label": "Claims submission and follow-up", "score_value": 2 },
+            { "label": "Quote generation / proposals", "score_value": 2 },
+            { "label": "Document review, summarization, or redlining", "score_value": 2 },
+            { "label": "Field ticket / invoice matching", "score_value": 2 },
+            { "label": "Intake forms and new-client onboarding", "score_value": 2 },
+            { "label": "Chart / case / file notes drafting", "score_value": 2 },
+            { "label": "Compliance and regulatory reporting", "score_value": 2 },
+            { "label": "Internal status reports / dashboards", "score_value": 2 },
+            { "label": "None of the above", "score_value": 0 }
+          ]
+        },
+        {
+          "id": "op_document_volume",
+          "domain": "operational_process_maturity",
+          "text": "Roughly how many documents (intake forms, quotes, claims, contracts, reports) does your team produce or process each week?",
+          "help_text": "High document volume is the #1 predictor of AI payback — each repeated document template is a place Copilot or a custom GPT can save hours.",
+          "question_type": "single_select",
+          "weight": 12,
+          "tier": "free",
+          "options": [
+            { "label": "Fewer than 25/week", "score_value": 1 },
+            { "label": "25 – 100/week", "score_value": 2 },
+            { "label": "100 – 500/week", "score_value": 3 },
+            { "label": "500 – 2,000/week", "score_value": 3 },
+            { "label": "More than 2,000/week", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "op_email_volume",
+          "domain": "operational_process_maturity",
+          "text": "About how many emails does a typical front-office or admin staffer handle per week?",
+          "help_text": "Email triage, drafting, and follow-up is a classic Copilot for Outlook win.",
+          "question_type": "single_select",
+          "weight": 9,
+          "tier": "paid",
+          "options": [
+            { "label": "Under 50", "score_value": 1 },
+            { "label": "50 – 150", "score_value": 2 },
+            { "label": "150 – 400", "score_value": 3 },
+            { "label": "400 – 1,000", "score_value": 3 },
+            { "label": "Over 1,000", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "op_reporting_cadence",
+          "domain": "operational_process_maturity",
+          "text": "How is management reporting assembled today?",
+          "help_text": "Manual, copy-paste reporting from multiple systems is a prime target for AI + Power BI / Fabric.",
+          "question_type": "single_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "No regular reporting", "score_value": 0 },
+            { "label": "Manually built in Excel each time", "score_value": 1 },
+            { "label": "Mostly manual with a few saved templates", "score_value": 2 },
+            { "label": "Semi-automated (Power BI, LOB dashboards)", "score_value": 3 },
+            { "label": "Fully automated dashboards with drill-down", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "op_process_documentation",
+          "domain": "operational_process_maturity",
+          "text": "How well documented are your core business processes?",
+          "help_text": "AI can only automate what a human can explain. Documented SOPs translate directly into prompts, agents, and Power Automate flows.",
+          "question_type": "single_select",
+          "weight": 10,
+          "tier": "paid",
+          "options": [
+            { "label": "Nothing written down — lives in people's heads", "score_value": 0 },
+            { "label": "A few critical SOPs exist, most do not", "score_value": 1 },
+            { "label": "Core processes documented but outdated", "score_value": 2 },
+            { "label": "Most processes documented and reviewed yearly", "score_value": 3 },
+            { "label": "SOPs versioned, tested, and continuously improved", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "op_tool_sprawl",
+          "domain": "operational_process_maturity",
+          "text": "Roughly how many separate SaaS applications does your team use daily?",
+          "help_text": "Excess tool sprawl fragments your data and makes AI integration harder; consolidation is often a prerequisite step.",
+          "question_type": "single_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "1 – 3 (very consolidated)", "score_value": 3 },
+            { "label": "4 – 8", "score_value": 4 },
+            { "label": "9 – 15", "score_value": 3 },
+            { "label": "16 – 25", "score_value": 2 },
+            { "label": "More than 25", "score_value": 1 }
+          ]
+        },
+        {
+          "id": "op_handoff_quality",
+          "domain": "operational_process_maturity",
+          "text": "When work hands off between people or departments, how reliable is the handoff?",
+          "help_text": "Messy handoffs waste rework time that AI agents can't fix — they compound.",
+          "question_type": "single_select",
+          "weight": 7,
+          "tier": "paid",
+          "options": [
+            { "label": "Frequent drops, rework, and missed items", "score_value": 0 },
+            { "label": "Works ok but requires chasing people", "score_value": 1 },
+            { "label": "Handoffs defined but inconsistently followed", "score_value": 2 },
+            { "label": "Clear queues / checklists / systems drive handoffs", "score_value": 3 },
+            { "label": "Automated workflow with status visibility end-to-end", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "op_data_capture_digital",
+          "domain": "operational_process_maturity",
+          "text": "How much of your inbound information arrives in digital, structured form?",
+          "help_text": "Paper forms, faxes, and scans require OCR before AI can read them. Digital intake shortens time-to-value.",
+          "question_type": "single_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "Mostly paper, faxes, and phone calls", "score_value": 0 },
+            { "label": "Mix of paper and digital", "score_value": 1 },
+            { "label": "Primarily digital but unstructured (email, PDFs)", "score_value": 2 },
+            { "label": "Mostly structured digital (forms, portals)", "score_value": 3 },
+            { "label": "Fully digital and API-accessible", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "op_quality_metrics",
+          "domain": "operational_process_maturity",
+          "text": "Do you measure quality, turnaround, or error rates for your key processes?",
+          "help_text": "If you can't measure today's baseline you can't prove AI ROI tomorrow.",
+          "question_type": "single_select",
+          "weight": 6,
+          "tier": "paid",
+          "options": [
+            { "label": "No metrics tracked", "score_value": 0 },
+            { "label": "Ad-hoc / spot checks", "score_value": 1 },
+            { "label": "Monthly reports reviewed", "score_value": 2 },
+            { "label": "KPI dashboards reviewed weekly", "score_value": 3 },
+            { "label": "Real-time ops dashboards with thresholds", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "op_rework_rate",
+          "domain": "operational_process_maturity",
+          "text": "About what share of work has to be redone because of errors, missing info, or compliance callbacks?",
+          "help_text": "High rework means AI can drive immediate quality wins — but it also means the underlying process needs structure first.",
+          "question_type": "single_select",
+          "weight": 6,
+          "tier": "paid",
+          "options": [
+            { "label": "More than 20%", "score_value": 0 },
+            { "label": "10 – 20%", "score_value": 1 },
+            { "label": "5 – 10%", "score_value": 2 },
+            { "label": "Under 5%", "score_value": 3 },
+            { "label": "Under 2% (mature ops)", "score_value": 4 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technology_infrastructure",
+      "name": "Technology Infrastructure Readiness",
+      "description": "The state of the tech stack that AI will sit on top of — productivity suite, line-of-business systems, networks, and endpoints.",
+      "weight": 20,
+      "questions": [
+        {
+          "id": "tech_productivity_suite",
+          "domain": "technology_infrastructure",
+          "text": "What is your primary productivity and email platform?",
+          "help_text": "Copilot for Microsoft 365 requires an M365 tenant. Google Workspace shops should look at Gemini for Workspace instead. Mixed environments need a clearer strategy before buying AI licenses.",
+          "question_type": "single_select",
+          "weight": 14,
+          "tier": "free",
+          "options": [
+            { "label": "Microsoft 365 (Outlook, Teams, SharePoint)", "score_value": 4 },
+            { "label": "Google Workspace (Gmail, Drive, Meet)", "score_value": 3 },
+            { "label": "Mixed — some M365, some Google, some desktop Office", "score_value": 1 },
+            { "label": "On-prem Exchange or legacy desktop Office only", "score_value": 1 },
+            { "label": "Other / not sure", "score_value": 0 }
+          ]
+        },
+        {
+          "id": "tech_lob_software",
+          "domain": "technology_infrastructure",
+          "text": "What is your primary line-of-business (LOB) system?",
+          "help_text": "The LOB system (practice management, claims system, case management, ERP) is where most automation ROI lives. Cloud-hosted LOB with APIs unlocks far more than on-prem legacy software.",
+          "question_type": "single_select",
+          "weight": 12,
+          "tier": "free",
+          "options": [
+            { "label": "No dedicated LOB — we run on Excel / Sheets", "score_value": 0 },
+            { "label": "Legacy on-prem LOB, no API", "score_value": 1 },
+            { "label": "Cloud-hosted LOB, limited integrations", "score_value": 2 },
+            { "label": "Modern cloud LOB with documented API", "score_value": 3 },
+            { "label": "API-first platform with active integrations already running", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "tech_integration_platform",
+          "domain": "technology_infrastructure",
+          "text": "Which integration / automation platforms do you actively use?",
+          "help_text": "Power Automate, Zapier, or Make are the glue that turns AI outputs into real workflow changes. Existing adoption = much faster time-to-value.",
+          "question_type": "multi_select",
+          "weight": 10,
+          "tier": "paid",
+          "options": [
+            { "label": "Microsoft Power Automate / Power Apps", "score_value": 4 },
+            { "label": "Zapier or Make", "score_value": 3 },
+            { "label": "Custom-built integrations", "score_value": 3 },
+            { "label": "Native integrations inside our LOB only", "score_value": 2 },
+            { "label": "None — nothing is integrated", "score_value": 0 }
+          ]
+        },
+        {
+          "id": "tech_on_prem_infra",
+          "domain": "technology_infrastructure",
+          "text": "What on-premise server infrastructure do you still maintain?",
+          "help_text": "Heavy on-prem footprint slows AI adoption — cloud-first tenants connect to Copilot, Azure OpenAI, and Microsoft Graph much faster.",
+          "question_type": "single_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "Significant on-prem — domain controller, file server, app servers", "score_value": 1 },
+            { "label": "One or two servers (e.g. file share)", "score_value": 2 },
+            { "label": "Hybrid — most cloud, some on-prem", "score_value": 3 },
+            { "label": "Entirely cloud — no physical servers", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "tech_network_readiness",
+          "domain": "technology_infrastructure",
+          "text": "How is your network and remote-work posture?",
+          "help_text": "AI tools and Copilot need reliable bandwidth and modern identity. Legacy VPNs that break when users work remotely also break AI adoption.",
+          "question_type": "single_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "Limited bandwidth, office-only access", "score_value": 0 },
+            { "label": "Adequate bandwidth, traditional VPN for remote", "score_value": 2 },
+            { "label": "Modern SSO + cloud apps accessible from anywhere", "score_value": 3 },
+            { "label": "Zero Trust network access with device posture checks", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "tech_endpoint_management",
+          "domain": "technology_infrastructure",
+          "text": "How are employee laptops and phones managed?",
+          "help_text": "Microsoft Intune (or equivalent MDM) is how you enforce that only compliant, encrypted, patched devices access company data and AI tools. Without it, Copilot can still be used — but the regulated data it touches may flow to untrusted devices.",
+          "question_type": "single_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "Not managed — users own their devices and configuration", "score_value": 0 },
+            { "label": "Basic anti-virus on company-issued laptops only", "score_value": 1 },
+            { "label": "Intune or similar MDM deployed, partial coverage", "score_value": 2 },
+            { "label": "Full Intune deployment — compliance policies + app protection", "score_value": 3 },
+            { "label": "Autopilot + compliance + conditional access fully integrated", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "tech_backup_dr",
+          "domain": "technology_infrastructure",
+          "text": "What is your backup and disaster recovery posture?",
+          "help_text": "AI doesn't cause data loss but amplifies dependence on the data. A ransomware event that takes out SharePoint takes Copilot with it.",
+          "question_type": "single_select",
+          "weight": 7,
+          "tier": "paid",
+          "options": [
+            { "label": "No formal backups / unsure", "score_value": 0 },
+            { "label": "Local backups only, not tested", "score_value": 1 },
+            { "label": "Cloud backup with periodic restore testing", "score_value": 3 },
+            { "label": "3-2-1 with documented RPO/RTO and quarterly test restores", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "tech_identity_provider",
+          "domain": "technology_infrastructure",
+          "text": "What is your primary identity provider for signing in to apps?",
+          "help_text": "Copilot and most modern AI assistants use Entra ID (Azure AD) identity for permissions and audit. Fragmented identity = fragmented AI governance.",
+          "question_type": "single_select",
+          "weight": 7,
+          "tier": "paid",
+          "options": [
+            { "label": "Per-app local accounts, no central identity", "score_value": 0 },
+            { "label": "On-prem Active Directory only", "score_value": 1 },
+            { "label": "Entra ID (Azure AD) for M365 plus some SSO", "score_value": 3 },
+            { "label": "Entra ID with SSO to most business apps", "score_value": 4 },
+            { "label": "Google Workspace identity for most apps", "score_value": 3 }
+          ]
+        },
+        {
+          "id": "tech_data_warehouse",
+          "domain": "technology_infrastructure",
+          "text": "Do you have a central data warehouse, lakehouse, or analytics platform?",
+          "help_text": "Not required for many AI wins (Copilot works on docs + email directly), but necessary for predictive/analytical AI use cases.",
+          "question_type": "single_select",
+          "weight": 6,
+          "tier": "paid",
+          "options": [
+            { "label": "No — data lives in source systems only", "score_value": 1 },
+            { "label": "Some reporting databases", "score_value": 2 },
+            { "label": "Power BI / Looker with curated datasets", "score_value": 3 },
+            { "label": "Microsoft Fabric, Snowflake, or similar modern lakehouse", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "tech_shadow_ai",
+          "domain": "technology_infrastructure",
+          "text": "Do you know what AI tools your employees are already using personally for work?",
+          "help_text": "Shadow AI (ChatGPT free, Claude.ai, consumer Copilot, Grammarly, etc.) is the biggest silent data-leak vector today. Visibility is step one.",
+          "question_type": "single_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "No idea — we don't monitor it", "score_value": 0 },
+            { "label": "Anecdotal awareness only", "score_value": 1 },
+            { "label": "Policy communicated but not enforced", "score_value": 2 },
+            { "label": "Defender for Cloud Apps / discovery tool in place", "score_value": 3 },
+            { "label": "Sanctioned-AI list enforced, shadow AI blocked or redirected", "score_value": 4 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "team_change_management",
+      "name": "Team & Change Management",
+      "description": "The people side: who owns technology internally, how your workforce reacts to change, and whether leadership will champion AI adoption.",
+      "weight": 15,
+      "questions": [
+        {
+          "id": "team_tech_lead",
+          "domain": "team_change_management",
+          "text": "Who owns technology decisions day-to-day in your business?",
+          "help_text": "AI programs fail without a clear decision-maker. An MSP can be enough, but someone inside the business needs authority to prioritize.",
+          "question_type": "single_select",
+          "weight": 15,
+          "tier": "free",
+          "options": [
+            { "label": "No one specific — owner / partners handle it ad-hoc", "score_value": 0 },
+            { "label": "An outside MSP, no internal champion", "score_value": 1 },
+            { "label": "Office manager / ops lead handles it alongside other duties", "score_value": 2 },
+            { "label": "Internal IT lead or MSP + internal champion", "score_value": 3 },
+            { "label": "Dedicated IT / digital leader with budget authority", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "team_leadership_stance",
+          "domain": "team_change_management",
+          "text": "How would you describe leadership's current stance on AI adoption?",
+          "help_text": "Executive sponsorship is the single biggest success factor. Cautious is fine; blocked is a red flag.",
+          "question_type": "single_select",
+          "weight": 15,
+          "tier": "free",
+          "options": [
+            { "label": "Blocked — leadership has banned AI tools", "score_value": 0 },
+            { "label": "Skeptical — concerned about risk and cost", "score_value": 1 },
+            { "label": "Cautious but open to structured pilots", "score_value": 2 },
+            { "label": "Enthusiastic — actively pushing for adoption", "score_value": 3 },
+            { "label": "Champion — has set explicit AI strategy and budget", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "team_staff_comfort",
+          "domain": "team_change_management",
+          "text": "How comfortable is your staff with new technology generally?",
+          "help_text": "Pilot success depends on user adoption. Mixed comfort is normal — we design the rollout accordingly.",
+          "question_type": "single_select",
+          "weight": 12,
+          "tier": "paid",
+          "options": [
+            { "label": "Very resistant — adoption is always a struggle", "score_value": 0 },
+            { "label": "Slow to adopt, needs heavy hand-holding", "score_value": 1 },
+            { "label": "Mixed — some champions, some laggards", "score_value": 2 },
+            { "label": "Generally eager to try new tools", "score_value": 3 },
+            { "label": "Tech-forward culture — adopts rapidly", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "team_prior_rollouts",
+          "domain": "team_change_management",
+          "text": "How have prior technology rollouts gone at your business?",
+          "help_text": "Past is prologue. Consistent failures usually reflect process, not people — we'll account for that in the plan.",
+          "question_type": "single_select",
+          "weight": 10,
+          "tier": "paid",
+          "options": [
+            { "label": "Have never rolled out anything major", "score_value": 1 },
+            { "label": "Rollouts routinely stall or roll back", "score_value": 0 },
+            { "label": "Mixed — some stuck, some didn't", "score_value": 2 },
+            { "label": "Most rollouts land successfully", "score_value": 3 },
+            { "label": "Repeated successful change initiatives", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "team_training_cadence",
+          "domain": "team_change_management",
+          "text": "How is staff training handled today?",
+          "help_text": "Copilot adoption without training yields 20–30% of the possible ROI. Structured enablement is non-negotiable.",
+          "question_type": "single_select",
+          "weight": 10,
+          "tier": "paid",
+          "options": [
+            { "label": "No formal training", "score_value": 0 },
+            { "label": "Ad-hoc / YouTube / on-the-job", "score_value": 1 },
+            { "label": "Annual compliance training only", "score_value": 2 },
+            { "label": "Quarterly skills training with budget", "score_value": 3 },
+            { "label": "Continuous learning culture with dedicated budget", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "team_ai_policy",
+          "domain": "team_change_management",
+          "text": "Do you have a written acceptable-use policy for AI tools?",
+          "help_text": "A one-page AI use policy (what data can go in, what tools are approved, what's banned) is table-stakes before any pilot.",
+          "question_type": "single_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "No — never discussed", "score_value": 0 },
+            { "label": "Informal verbal guidance only", "score_value": 1 },
+            { "label": "Draft policy exists, not yet rolled out", "score_value": 2 },
+            { "label": "Published policy and staff have acknowledged it", "score_value": 3 },
+            { "label": "Policy, training, and enforcement via DLP / Purview", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "team_resistance",
+          "domain": "team_change_management",
+          "text": "Are there any organized groups or constraints that will slow rollout?",
+          "help_text": "Unionized, regulated, or heavily credentialed workforces aren't blockers — they just need different playbooks.",
+          "question_type": "multi_select",
+          "weight": 6,
+          "tier": "paid",
+          "options": [
+            { "label": "Unionized staff", "score_value": 2 },
+            { "label": "Licensed / regulated professionals (MDs, attorneys, CPAs, PEs)", "score_value": 2 },
+            { "label": "Long-tenured staff resistant to change", "score_value": 2 },
+            { "label": "Multiple partners / committee governance", "score_value": 2 },
+            { "label": "None of the above", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "team_champion_available",
+          "domain": "team_change_management",
+          "text": "Is there a power user or internal champion excited to pilot AI?",
+          "help_text": "One motivated champion per department is worth more than any vendor trainer.",
+          "question_type": "single_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "No one in particular", "score_value": 0 },
+            { "label": "Maybe one person informally", "score_value": 2 },
+            { "label": "Yes — one clear champion identified", "score_value": 3 },
+            { "label": "Multiple champions across departments", "score_value": 4 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "financial_strategic_alignment",
+      "name": "Financial & Strategic Alignment",
+      "description": "Whether budget, decision-making speed, and strategic priorities line up with realistic AI timelines and ROI.",
+      "weight": 15,
+      "questions": [
+        {
+          "id": "fin_annual_revenue",
+          "domain": "financial_strategic_alignment",
+          "text": "What is your approximate annual revenue?",
+          "help_text": "Used to right-size recommendations. We don't share this outside the report.",
+          "question_type": "single_select",
+          "weight": 12,
+          "tier": "free",
+          "options": [
+            { "label": "Under $1M", "score_value": 1 },
+            { "label": "$1M – $3M", "score_value": 2 },
+            { "label": "$3M – $10M", "score_value": 3 },
+            { "label": "$10M – $25M", "score_value": 4 },
+            { "label": "Over $25M", "score_value": 4 },
+            { "label": "Prefer not to say", "score_value": 2 }
+          ]
+        },
+        {
+          "id": "fin_timeline",
+          "domain": "financial_strategic_alignment",
+          "text": "What is your realistic timeline for making a meaningful AI investment?",
+          "help_text": "This sets the cadence — a 90-day pilot looks very different from a 2-year roadmap.",
+          "question_type": "single_select",
+          "weight": 14,
+          "tier": "free",
+          "options": [
+            { "label": "Just exploring / no timeline", "score_value": 1 },
+            { "label": "Within the next 12 months", "score_value": 2 },
+            { "label": "This quarter", "score_value": 3 },
+            { "label": "Already investing — need help accelerating", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "fin_tech_budget",
+          "domain": "financial_strategic_alignment",
+          "text": "What is your approximate annual technology budget (software + IT services)?",
+          "help_text": "Tech budget as a share of revenue is the cleanest indicator of capacity to act.",
+          "question_type": "single_select",
+          "weight": 10,
+          "tier": "paid",
+          "options": [
+            { "label": "Under $10K / year", "score_value": 0 },
+            { "label": "$10K – $50K", "score_value": 1 },
+            { "label": "$50K – $150K", "score_value": 2 },
+            { "label": "$150K – $500K", "score_value": 3 },
+            { "label": "Over $500K", "score_value": 4 },
+            { "label": "Not sure", "score_value": 1 }
+          ]
+        },
+        {
+          "id": "fin_decision_speed",
+          "domain": "financial_strategic_alignment",
+          "text": "How are technology purchase decisions usually made?",
+          "help_text": "Single owners move in weeks; boards move in quarters. Neither is wrong — it just shapes the engagement.",
+          "question_type": "single_select",
+          "weight": 10,
+          "tier": "paid",
+          "options": [
+            { "label": "Single owner decides — can move in days", "score_value": 4 },
+            { "label": "Partnership / 2-3 principals", "score_value": 3 },
+            { "label": "Leadership committee with recurring meetings", "score_value": 2 },
+            { "label": "Board approval required", "score_value": 1 }
+          ]
+        },
+        {
+          "id": "fin_strategic_priorities",
+          "domain": "financial_strategic_alignment",
+          "text": "Which strategic priorities matter most in the next 12 months? Select up to 3.",
+          "help_text": "Different drivers point to different AI use cases. Cost reduction → back-office automation; growth → sales/marketing AI; compliance → Purview + governance.",
+          "question_type": "multi_select",
+          "weight": 10,
+          "tier": "paid",
+          "options": [
+            { "label": "Reduce operating cost", "score_value": 3 },
+            { "label": "Revenue growth / new clients", "score_value": 3 },
+            { "label": "Improve compliance / reduce audit risk", "score_value": 3 },
+            { "label": "Keep up with competitors already using AI", "score_value": 3 },
+            { "label": "Improve client / patient experience", "score_value": 3 },
+            { "label": "Retain staff / reduce burnout", "score_value": 3 },
+            { "label": "No clear priorities yet", "score_value": 1 }
+          ]
+        },
+        {
+          "id": "fin_prior_ai_spend",
+          "domain": "financial_strategic_alignment",
+          "text": "Have you invested in AI or automation tools before?",
+          "help_text": "Past experiments — good or bad — tell us where to start and what to avoid.",
+          "question_type": "single_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "Never", "score_value": 1 },
+            { "label": "Tried free ChatGPT-class tools informally", "score_value": 2 },
+            { "label": "Bought tools that didn't stick", "score_value": 1 },
+            { "label": "Have at least one AI tool in daily use", "score_value": 3 },
+            { "label": "Multiple AI tools in production, measurable ROI", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "fin_roi_expectation",
+          "domain": "financial_strategic_alignment",
+          "text": "What ROI expectation are you bringing to this project?",
+          "help_text": "Realistic expectations are a leading indicator of success. AI pilots for SMBs in these industries typically return 2–5x in year one when done well.",
+          "question_type": "single_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "No specific expectation — just exploring", "score_value": 1 },
+            { "label": "Break even in year 1", "score_value": 3 },
+            { "label": "2x – 3x return on the investment", "score_value": 4 },
+            { "label": "5x+ return in year 1", "score_value": 2 },
+            { "label": "Cost savings of a specific headcount or $ amount", "score_value": 4 }
+          ]
+        },
+        {
+          "id": "fin_measurement_willingness",
+          "domain": "financial_strategic_alignment",
+          "text": "Are you willing to measure a baseline before the pilot starts?",
+          "help_text": "2 weeks of pre-pilot time-tracking is the cheapest insurance policy for proving ROI later.",
+          "question_type": "single_select",
+          "weight": 8,
+          "tier": "paid",
+          "options": [
+            { "label": "No — not willing to slow down for that", "score_value": 0 },
+            { "label": "Maybe — depends on effort", "score_value": 2 },
+            { "label": "Yes — we already track some of these metrics", "score_value": 3 },
+            { "label": "Absolutely — we want clear before/after data", "score_value": 4 }
+          ]
+        }
+      ]
+    }
+  ]
+}
