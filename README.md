@@ -78,7 +78,7 @@ npm run dev                        # http://localhost:3000
 
 ### Database
 
-Apply `supabase/migrations/001` through `006` in order, either with the
+Apply `supabase/migrations/001` through `007` in order, either with the
 Supabase CLI (`supabase link --project-ref <ref> && supabase db push`) or by
 pasting each file into the Supabase SQL editor.
 
