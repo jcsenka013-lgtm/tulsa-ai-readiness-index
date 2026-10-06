@@ -1,6 +1,6 @@
 # Tulsa AI Readiness Index
 
-[![CI](https://github.com/jcsenka013-lgtm/TAI-iosapp-2/actions/workflows/ci.yml/badge.svg)](https://github.com/jcsenka013-lgtm/TAI-iosapp-2/actions/workflows/ci.yml)
+[![CI](https://github.com/jcsenka013-lgtm/tulsa-ai-readiness-index/actions/workflows/ci.yml/badge.svg)](https://github.com/jcsenka013-lgtm/tulsa-ai-readiness-index/actions/workflows/ci.yml)
 
 A full-stack lead-generation and diagnostic web app for **Tulsa Applied AI LLC**.
 Small and mid-sized businesses take a five-minute assessment and get a 0–100
