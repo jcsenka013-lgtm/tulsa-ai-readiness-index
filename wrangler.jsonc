@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tulsa-ai-readiness-index",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-10-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "not_found_handling": "none",
+    "binding": "ASSETS"
+  },
+  "images": { "binding": "IMAGES" },
+  // Hourly email follow-up sequences (see worker/index.ts).
+  "triggers": { "crons": ["0 * * * *"] },
+  "observability": { "enabled": true }
+}
