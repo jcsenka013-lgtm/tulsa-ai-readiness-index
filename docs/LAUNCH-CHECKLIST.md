@@ -245,7 +245,7 @@ Run **each** item once per product against the production deployment.
 - [ ] `RESEND_API_KEY`, `EMAIL_FROM`, `SLACK_WEBHOOK_URL_LEADS`,
   `SLACK_WEBHOOK_URL_ERRORS`, `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`,
   `CRON_SECRET` are all set.
-- [ ] Vercel cron configured for `POST /api/cron/email-sequences`.
+- [ ] Cloudflare cron trigger (`0 * * * *` in `wrangler.jsonc`) registered for `/api/cron/email-sequences`.
 - [ ] `ASSESSMENT_CREATE_LIMIT_AI`, `ASSESSMENT_CREATE_LIMIT_COPILOT` set
   (or accept the defaults of 20 / 10 per 15-minute IP window).
 

@@ -11,22 +11,30 @@ import { imagesOptimizer } from "@vinext/cloudflare/images/images-optimizer";
 const require = createRequire(import.meta.url);
 
 /**
- * Route handlers run in the RSC environment, where `react` resolves to its
- * react-server build. @react-pdf's bundled reconciler needs the full client
- * build (React.__CLIENT_INTERNALS_*), as it gets under Next.js where
- * @react-pdf/renderer is a server-external package.
+ * Route handlers run in the RSC environment, where `react` / `react-dom`
+ * resolve to their react-server builds. The PDF (@react-pdf reconciler) and
+ * email (@react-email -> react-dom/server.edge) renderers need the full
+ * builds, as they get under Next.js where they are server-external packages.
+ * React DOM's own react-server files keep the server build.
  */
-function reactPdfFullReact(): Plugin {
+const FULL_REACT_IMPORTER =
+  /\/node_modules\/(@react-pdf|@react-email)\/|\/node_modules\/react-dom\/(?!.*react-server)/;
+
+function rendererFullReact(): Plugin {
+  const serverEdge = require.resolve("react-dom/server.edge");
   const targets: Record<string, string> = {
     react: require.resolve("react"),
     "react/jsx-runtime": require.resolve("react/jsx-runtime"),
+    "react-dom": require.resolve("react-dom"),
+    "react-dom/server": serverEdge,
+    "react-dom/server.edge": serverEdge,
   };
   return {
-    name: "react-pdf-full-react",
+    name: "renderer-full-react",
     enforce: "pre",
     applyToEnvironment: (environment) => environment.name === "rsc",
     resolveId(source, importer) {
-      if (importer?.includes("/node_modules/@react-pdf/") && source in targets) {
+      if (importer && FULL_REACT_IMPORTER.test(importer) && source in targets) {
         return targets[source];
       }
     },
@@ -83,7 +91,7 @@ export default defineConfig({
   // postcss.config.mjs is for `next build`; Tailwind runs as a Vite plugin here.
   css: { postcss: {} },
   plugins: [
-    reactPdfFullReact(),
+    rendererFullReact(),
     yogaPrecompiledWasm(),
     tailwindcss(),
     vinext({
