@@ -43,3 +43,8 @@ next-env.d.ts
 
 # local PDF samples (scripts/generate-sample-pdf.ts)
 /tmp/
+/dist/
+.vinext/
+.cloudflare/
+.wrangler/
+.dev.vars
