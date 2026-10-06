@@ -25,7 +25,12 @@ function GlossaryTermButton({
   const headingId = useId();
   const bodyId = useId();
 
-  const { refs, floatingStyles, update } = useFloating({
+  const {
+    refs,
+    elements: { reference: referenceEl, floating: floatingEl },
+    floatingStyles,
+    update,
+  } = useFloating({
     open,
     placement: "top",
     strategy: "fixed",
@@ -47,19 +52,16 @@ function GlossaryTermButton({
     const onDoc = (e: MouseEvent) => {
       const t = e.target;
       if (!(t instanceof Element)) return;
-      const refNode = refs.reference.current as Element | null;
-      if (
-        refNode &&
-        !refNode.contains(t) &&
-        refs.floating.current &&
-        !refs.floating.current.contains(t)
-      ) {
+      const refNode = referenceEl as Element | null;
+      if (refNode && !refNode.contains(t) && floatingEl && !floatingEl.contains(t)) {
         setOpen(false);
       }
     };
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
-  }, [open, refs.floating, refs.reference]);
+  }, [open, referenceEl, floatingEl]);
+
+  const { setReference, setFloating } = refs;
 
   if (!entry) {
     return <span>{phrase}</span>;
@@ -69,7 +71,7 @@ function GlossaryTermButton({
     open && typeof document !== "undefined"
       ? createPortal(
           <div
-            ref={refs.setFloating}
+            ref={setFloating}
             id={bodyId}
             style={floatingStyles}
             className="z-50 w-[min(20rem,calc(100vw-1.5rem))] rounded-lg border border-border bg-popover p-3 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10"
@@ -90,7 +92,7 @@ function GlossaryTermButton({
   return (
     <>
       <button
-        ref={refs.setReference}
+        ref={setReference}
         type="button"
         className="cursor-pointer border-0 bg-transparent p-0 font-inherit text-inherit underline decoration-dotted underline-offset-2 ring-offset-background transition hover:text-primary focus-visible:ring-2 focus-visible:ring-ring/50"
         aria-expanded={open}
@@ -124,7 +126,6 @@ export function GlossaryText({
       {segments.map((s, i) =>
         s.type === "term" ? (
           <GlossaryTermButton
-            // eslint-disable-next-line react/no-array-index-key
             key={`${s.key}-${i}`}
             phrase={s.value}
             glossKey={s.key}

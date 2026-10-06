@@ -1,130 +1,120 @@
 # Tulsa AI Readiness Index
 
-A lead-generation web app for **Tulsa Applied AI LLC**. Visitors take a
-five-minute assessment, get a readiness score across five dimensions, a custom
-ROI estimate, and a personalized roadmap PDF.
+[![CI](https://github.com/jcsenka013-lgtm/TAI-iosapp-2/actions/workflows/ci.yml/badge.svg)](https://github.com/jcsenka013-lgtm/TAI-iosapp-2/actions/workflows/ci.yml)
+
+A full-stack lead-generation and diagnostic web app for **Tulsa Applied AI LLC**.
+Small and mid-sized businesses take a five-minute assessment and get a 0–100
+AI-readiness score across five weighted domains, an ROI estimate, prioritized
+consultant-style insights, and a downloadable PDF roadmap. Every completion
+becomes a qualified lead with an automated email follow-up sequence.
+
+The app runs two products on one codebase:
+
+- **AI Readiness Index** (`/`) — general AI readiness for SMBs.
+- **Copilot Readiness Assessment** (`/copilot`) — Microsoft 365 Copilot
+  readiness, with a dedicated M365 security/compliance gap-analysis engine.
+
+## Features
+
+- **Multi-step assessment** with autosave and resume (firmographics → contact
+  gate → questions), driven by a JSON question bank (48 weighted questions).
+- **Scoring engine** — weighted domain scores, readiness tier, recommended next
+  step with compliance overrides, ROI banding, and a prioritized rule-based
+  insight generator. Covered by 84 Vitest unit tests.
+- **Microsoft 365 gap analysis** — Copilot prerequisites, compliance gaps,
+  licensing upgrades, and quick wins.
+- **PDF report** generated server-side with `@react-pdf/renderer`, stored in a
+  private Supabase Storage bucket, and served via short-lived signed URLs.
+- **Email automation** — results email plus 24h / 72h / 7-day follow-ups and
+  abandoned-assessment recovery via Resend + React Email, run by an hourly
+  Vercel Cron job, with idempotent send logging and one-click unsubscribe.
+- **Ops** — Slack lead and booked-call alerts, Sentry error monitoring tagged
+  by product, per-IP rate limiting, per-product analytics funnel events, and a
+  password-protected admin leads dashboard.
+- **SEO** — sitemap, robots rules, and dynamic Open Graph images per product.
 
 ## Stack
 
-- **Next.js 16** (App Router, React 19, TypeScript)
-- **Tailwind CSS v4** + **shadcn/ui** (slate palette)
-- **Supabase** (Postgres + Auth; magic-link email planned)
-- **Vercel** for hosting
-
-## Prerequisites
-
-- Node.js **20.x** or newer
-- npm **10.x** or newer
-- A Supabase project — free tier is fine
-- (Optional) the **Supabase CLI** to run migrations locally: <https://supabase.com/docs/guides/cli>
-
-## 1. Clone and install
-
-```bash
-npm install
-```
-
-## 2. Configure environment variables
-
-Copy the example file and fill it in with values from your Supabase project
-(**Project Settings → API**):
-
-```bash
-cp .env.local.example .env.local
-```
-
-Variables:
-
-| Variable | Where it's used | Exposed to browser? |
-| --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Browser + server clients | Yes |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser + server clients | Yes |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server-only (bypasses RLS) | **No — never commit** |
-| `NEXT_PUBLIC_SITE_URL` | Absolute URLs in emails/PDFs | Yes |
-
-## 3. Run the database migrations
-
-The schema lives in `supabase/migrations/` and is applied in order:
-
-| File | Purpose |
+| Layer | Choice |
 | --- | --- |
-| `001_initial_schema.sql` | Creates `assessments` and `leads` tables with RLS enabled. |
-| `002_align_scoring_domains.sql` | Re-aligns score columns to match the five domains defined in `src/lib/questions/questions.json` (data_security_compliance, operational_process_maturity, technology_infrastructure, team_change_management, financial_strategic_alignment). |
-
-### Option A — Supabase CLI (recommended)
-
-```bash
-# One-time: link this repo to your remote Supabase project
-supabase link --project-ref <your-project-ref>
-
-# Apply the migration to the linked remote database
-supabase db push
-```
-
-### Option B — Paste into the SQL editor
-
-1. Open your Supabase project → **SQL Editor → New query**.
-2. Paste the contents of `supabase/migrations/001_initial_schema.sql`.
-3. Run.
-
-### Option C — Local Supabase stack
-
-```bash
-supabase start                 # Docker-based local stack
-supabase migration up          # Apply all migrations to the local DB
-```
-
-## 4. Start the dev server
-
-```bash
-npm run dev
-```
-
-Open <http://localhost:3000>.
+| Framework | Next.js 16 (App Router, Route Handlers, Proxy), React 19, TypeScript |
+| UI | Tailwind CSS v4, shadcn/ui, Base UI, Floating UI |
+| Data | Supabase (Postgres with RLS, Storage) |
+| Email | Resend, React Email |
+| PDF | @react-pdf/renderer |
+| Monitoring | Sentry, Slack incoming webhooks |
+| Testing / CI | Vitest, ESLint, GitHub Actions |
+| Hosting | Vercel (including Vercel Cron) |
 
 ## Project layout
 
 ```
 src/
-  app/                    # Next.js App Router routes
-    assessment/           # Assessment flow (multi-step form)
-    results/[id]/         # Personalized results page
-    api/                  # Route handlers (server actions, webhooks)
-  components/
-    ui/                   # shadcn/ui primitives
-    assessment/           # Assessment-specific components
+  app/                    # Routes: marketing pages, /assessment, /results/[id],
+                          # /copilot/*, /admin, and api/* route handlers
+  components/             # assessment/, results/, marketing/, ui/ (shadcn)
   lib/
-    supabase/             # Browser + server Supabase clients
-    scoring/              # Scoring engine (domains, ROI, insights, orchestrator) + tests
-    questions/            # Canonical question bank (questions.json) + typed loader + firmographics
-    email/                # Transactional email (TBD)
-    pdf/                  # PDF roadmap generation (TBD)
-  types/
-    assessment.ts         # Domain types mirroring the schema
-supabase/
-  migrations/             # SQL migration files
+    scoring/              # Domain scores, tiers, ROI, insights (+ tests)
+    questions/            # questions.json, Copilot supplemental set, firmographics
+    m365-gap-analysis.ts  # Microsoft 365 / Copilot gap engine
+    pdf/                  # React-PDF report document and generation
+    email/                # Resend client, templates, follow-up sequence cron
+    notifications/        # Slack webhooks
+    products/             # Per-product config (AI vs Copilot)
+    supabase/             # Browser + server clients
+  proxy.ts                # Basic Auth for /admin
+supabase/migrations/      # SQL schema, applied in order
 ```
+
+## Local setup
+
+Requires Node.js 20+ and a Supabase project (free tier works).
+
+```bash
+npm install
+cp .env.local.example .env.local   # fill in Supabase keys at minimum
+npm run dev                        # http://localhost:3000
+```
+
+### Database
+
+Apply `supabase/migrations/001` through `005` in order, either with the
+Supabase CLI (`supabase link --project-ref <ref> && supabase db push`) or by
+pasting each file into the Supabase SQL editor.
+
+Then create a **private** Storage bucket named `reports` (PDF only, 10 MB
+limit) for generated PDF reports — see `003_pdf_tracking.sql`.
+
+### Environment variables
+
+The full list with comments is in [`.env.local.example`](.env.local.example).
+Only the Supabase variables and `NEXT_PUBLIC_SITE_URL` are required to run the
+assessment locally; email, Slack, Sentry, and Calendly degrade gracefully when
+unset. `SUPABASE_SERVICE_ROLE_KEY` is server-only and must never be exposed to
+the browser. Set `ADMIN_PASSWORD` to enable `/admin`.
 
 ## Scripts
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Start the Next.js dev server on `localhost:3000` |
-| `npm run build` | Production build |
-| `npm run start` | Serve the production build |
-| `npm run lint` | Run ESLint |
-| `npm test` | Run the vitest suite once |
-| `npm run test:watch` | Run vitest in watch mode |
+| `npm run dev` | Dev server on `localhost:3000` |
+| `npm run build` / `npm start` | Production build / serve |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | Generate route types and run `tsc` |
+| `npm test` | Vitest suite |
+| `npm run generate-sample-pdf` | Render a sample PDF report locally |
 
-## Deploying to Vercel
+## Deploying
 
-1. Push this repo to GitHub.
-2. Import the repo in <https://vercel.com/new>.
-3. Add the four environment variables from `.env.local.example` in
-   **Project → Settings → Environment Variables** (make sure
-   `SUPABASE_SERVICE_ROLE_KEY` is marked **Secret**, not exposed to the
-   browser).
-4. Deploy.
+1. Import the repo at <https://vercel.com/new>.
+2. Add the environment variables from `.env.local.example` (production values;
+   `NEXT_PUBLIC_SITE_URL` is the production origin with no trailing slash).
+3. Deploy. The hourly email cron in `vercel.json` registers automatically and
+   authenticates with `CRON_SECRET`.
+
+See [`docs/DEPLOYMENT-EMAIL.md`](docs/DEPLOYMENT-EMAIL.md) for Resend/DNS setup
+and [`docs/LAUNCH-CHECKLIST.md`](docs/LAUNCH-CHECKLIST.md) for production smoke
+tests.
 
 ## License
 

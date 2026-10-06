@@ -14,7 +14,7 @@
  * email via `email_log`.
  */
 
-import type { NextRequest } from "next/server";
+import { after, type NextRequest } from "next/server";
 import { createElement } from "react";
 
 import { sendEmail } from "@/lib/email/client";
@@ -212,7 +212,7 @@ export async function POST(
     const biggestPriority =
       typeof priorityRaw === "string" && priorityRaw.trim() ? priorityRaw.trim() : null;
 
-    void (async () => {
+    after(async () => {
       if (leadEmail) {
         try {
           const sendRes = await sendEmail({
@@ -234,19 +234,19 @@ export async function POST(
           });
           if (sendRes.outcome === "failed") {
             console.error("Results email failed:", sendRes.error);
-            notifyError(new Error(sendRes.error), {
+            await notifyError(new Error(sendRes.error), {
               assessmentId: row.id,
               step: "send_results_email",
             });
           }
         } catch (e) {
           console.error("Results email threw:", e);
-          notifyError(e, { assessmentId: row.id, step: "send_results_email" });
+          await notifyError(e, { assessmentId: row.id, step: "send_results_email" });
         }
       }
 
       try {
-        notifyNewLead({
+        await notifyNewLead({
           productType,
           companyName: row.company_name,
           overallScore: result.scores.overall,
@@ -266,7 +266,7 @@ export async function POST(
       } catch (e) {
         console.error("Slack notifyNewLead failed:", e);
       }
-    })();
+    });
   }
 
   return Response.json({

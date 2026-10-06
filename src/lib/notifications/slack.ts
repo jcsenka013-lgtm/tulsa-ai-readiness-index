@@ -63,7 +63,7 @@ function slackProductLabel(t: ProductType): string {
   return t === "copilot_readiness" ? "Copilot" : "AI Readiness";
 }
 
-export function notifyNewLead(data: NewLeadSlackPayload): void {
+export function notifyNewLead(data: NewLeadSlackPayload): Promise<void> {
   const site = getSiteUrl();
   const path = PRODUCTS[data.productType].resultsPath(data.assessmentId);
   const resultsUrl = site ? `${site}${path}` : "";
@@ -79,7 +79,7 @@ export function notifyNewLead(data: NewLeadSlackPayload): void {
     `*Links:* ${resultsUrl || "—"} | ${dash || "Supabase (configure NEXT_PUBLIC_SUPABASE_URL)"}`,
   ];
 
-  void postSlack(process.env.SLACK_WEBHOOK_URL_LEADS, { text: lines.join("\n") });
+  return postSlack(process.env.SLACK_WEBHOOK_URL_LEADS, { text: lines.join("\n") });
 }
 
 export interface BookedCallSlackPayload {
@@ -88,10 +88,10 @@ export interface BookedCallSlackPayload {
   companyName: string | null;
 }
 
-export function notifyBookedCall(data: BookedCallSlackPayload): void {
+export function notifyBookedCall(data: BookedCallSlackPayload): Promise<void> {
   const name = data.fullName?.trim() || "Someone";
   const co = data.companyName?.trim() || "their company";
-  void postSlack(process.env.SLACK_WEBHOOK_URL_LEADS, {
+  return postSlack(process.env.SLACK_WEBHOOK_URL_LEADS, {
     text: `📞 *[${slackProductLabel(data.productType)}]* *${name}* from *${co}* just booked a discovery call`,
   });
 }
@@ -99,7 +99,7 @@ export function notifyBookedCall(data: BookedCallSlackPayload): void {
 export function notifyError(
   error: unknown,
   context: { assessmentId?: string; step?: string },
-): void {
+): Promise<void> {
   const stack =
     error instanceof Error
       ? truncate(error.stack ?? error.message, 1200)
@@ -112,5 +112,5 @@ export function notifyError(
     "```",
   ].filter(Boolean);
 
-  void postSlack(process.env.SLACK_WEBHOOK_URL_ERRORS, { text: parts.join("\n") });
+  return postSlack(process.env.SLACK_WEBHOOK_URL_ERRORS, { text: parts.join("\n") });
 }

@@ -51,13 +51,14 @@ This document summarizes what exists in the **Tulsa AI Readiness Index** web app
 - **Tests:** `src/lib/scoring/__tests__/` — scoring fixtures and tests for dimension scores, overall score, tier, recommended next step, etc. `src/lib/m365-gap-analysis.test.ts` exercises the M365 module.
 - **Config:** `vitest.config.ts`, `next.config.ts`, `tsconfig.json`, `.env.local.example`.
 
-### Placeholders / not wired in the App Router yet
+- **End-to-end flow:** multi-step assessment with autosave (`src/app/assessment/`, `src/components/assessment/`), results pages (`/results/[id]`, `/copilot/results/[id]`), and route handlers under `src/app/api/` for create / update / complete / booked / PDF / unsubscribe / cron.
+- **PDF + email:** `src/lib/pdf/` (React-PDF report uploaded to the private `reports` bucket) and `src/lib/email/` (Resend templates and the hourly follow-up sequence).
+- **Admin:** `/admin` and `/admin/leads`, protected by Basic Auth in `src/proxy.ts`.
 
-- **`src/app/assessment/`** — only `.gitkeep` (no multi-step assessment UI or route).
-- **`src/app/results/[id]/`** — only `.gitkeep` (no results page).
-- **`src/app/api/`** — only `.gitkeep` (no route handlers to save assessments, compute scores server-side, or trigger PDF/email).
-- **`src/components/assessment/`** — not populated in tree (no dedicated assessment components checked in).
-- **`src/lib/email/`**, **`src/lib/pdf/`** — placeholders only (per `README.md` layout).
+### Not built in-repo
+
+- **Engagement signed** funnel event (fired from a CRM, see `docs/LAUNCH-CHECKLIST.md`).
+- Distributed rate limiting — the current limiter is in-memory per instance.
 
 **Environment:** Local dev expects `.env.local` from `.env.local.example` (Supabase URL/keys, `NEXT_PUBLIC_SITE_URL`).
 
@@ -163,11 +164,11 @@ Public marketing and the five benefit cards on the landing page use the same dom
 
 ## Repository & docs
 
-- **`README.md`** — setup, env vars, migrations, Vercel deploy, high-level layout (some paths still say “TBD” for scoring/questions; the code now fills much of that in).
+- **`README.md`** — features, stack, setup, env vars, migrations, Vercel deploy, project layout.
 - **`CLAUDE.md`**, **`AGENTS.md`** — agent/editor notes (including Next.js version guidance in `AGENTS.md`).
 
 ---
 
 ## Summary
 
-The codebase is a **solid backend-of-the-product**: data-driven question bank, firmographics, full scoring + tiering + recommendations, ROI banding, narrative insights, M365 gap analysis, Supabase schema, and tests. The **user-facing assessment flow, persistence orchestration, results UI, PDF, and email** are the main gaps remaining to ship an end-to-end experience.
+The codebase is a complete end-to-end product: data-driven question bank, scoring + tiering + recommendations, ROI banding, narrative insights, M365 gap analysis, assessment and results UI, PDF reports, email automation, Slack/Sentry monitoring, an admin dashboard, Supabase schema, and tests. What remains is production configuration (Supabase, Resend domain, Vercel env vars) and the smoke tests in `docs/LAUNCH-CHECKLIST.md`.

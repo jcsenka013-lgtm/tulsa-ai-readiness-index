@@ -1,4 +1,4 @@
-import type { NextRequest } from "next/server";
+import { after, type NextRequest } from "next/server";
 
 import { setSentryProductTypeTag } from "@/lib/monitoring/sentry-product";
 import { notifyBookedCall } from "@/lib/notifications/slack";
@@ -47,17 +47,13 @@ export async function POST(
     row.product_type === "copilot_readiness" ? "copilot_readiness" : "ai_readiness";
   setSentryProductTypeTag(productType);
 
-  void (async () => {
-    try {
-      notifyBookedCall({
-        productType,
-        fullName: row.full_name,
-        companyName: row.company_name,
-      });
-    } catch {
-      // fire-and-forget
-    }
-  })();
+  after(() =>
+    notifyBookedCall({
+      productType,
+      fullName: row.full_name,
+      companyName: row.company_name,
+    }),
+  );
 
   return Response.json({ ok: true, booked_call_at: new Date().toISOString() });
 }
