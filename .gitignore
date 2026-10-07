@@ -48,3 +48,7 @@ next-env.d.ts
 .cloudflare/
 .wrangler/
 .dev.vars
+
+# Local browser review artifacts
+/.playwright-cli/
+/output/playwright/

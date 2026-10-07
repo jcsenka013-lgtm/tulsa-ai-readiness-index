@@ -1,361 +1,68 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  ArrowRight,
-  BarChart3,
-  CheckCircle2,
-  ChevronDown,
-  Cpu,
-  FileText,
-  Landmark,
-  LayoutList,
-  LineChart,
-  Shield,
-  Sparkles,
-  Users,
-} from "lucide-react";
-
+import { ArrowDown, ArrowRight, ArrowUpRight, Command, Menu } from "lucide-react";
 import { AiLandingAnalytics } from "@/components/marketing/AiLandingAnalytics";
-import { MarketingFooter } from "@/components/marketing/MarketingFooter";
-import { MarketingHeader } from "@/components/marketing/MarketingHeader";
-import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { ReadinessPreview } from "@/components/marketing/ReadinessPreview";
+import { ProjectShowcase } from "@/components/marketing/ProjectShowcase";
+import { calculateAssessmentResult } from "@/lib/scoring";
+import type { AssessmentResponse } from "@/types/assessment";
+import { SAMPLE_DENTAL_RESPONSES } from "@/lib/sample-report/dental-practice-fixture";
+import { SAMPLE_COPILOT_INSURANCE_RESPONSES } from "@/lib/sample-report/copilot-insurance-fixture";
 
-const FIVE_DOMAINS = [
-  {
-    icon: Shield,
-    title: "Data Security & Compliance",
-    body: "Do your Purview policies, sensitivity labels, and access controls protect you when AI gets access?",
-  },
-  {
-    icon: LayoutList,
-    title: "Operational Process Maturity",
-    body: "Are your workflows documented enough that AI can actually help automate them?",
-  },
-  {
-    icon: Cpu,
-    title: "Technology Infrastructure",
-    body: "Is your M365 tenant configured to support Copilot, or will it create new risks?",
-  },
-  {
-    icon: Users,
-    title: "Team & Change Management",
-    body: "Will your team adopt AI tools, or will they rebel?",
-  },
-  {
-    icon: Landmark,
-    title: "Financial & Strategic Alignment",
-    body: "Do you have a clear, funded plan — or are you chasing AI because the trade press told you to?",
-  },
-] as const;
+export const metadata: Metadata = {
+  title: "Applied intelligence. Built to work.",
+  description: "Explore the AI Readiness Index: an interactive product and engineering case study built for Tulsa Applied AI. Try real scoring, insights, and sample reports without signing up.",
+};
 
-const BENEFITS = [
-  {
-    icon: BarChart3,
-    title: "Score across five dimensions",
-    description: (
-      <>
-        See how you rate on:{" "}
-        <span className="text-foreground">
-          Data security &amp; compliance; operational process maturity; technology
-          infrastructure; team &amp; change management; financial &amp; strategic
-          alignment
-        </span>
-        .
-      </>
-    ),
-  },
-  {
-    icon: LineChart,
-    title: "Custom ROI estimate",
-    description:
-      "Industry-aware model — we show the math: labor baseline, automation potential, suggested investment, and first-year net savings range.",
-  },
-  {
-    icon: FileText,
-    title: "Personalized M365 roadmap",
-    description:
-      "The differentiator: compliance gaps, Copilot readiness, license upgrade recommendations, and quick wins you can act on this quarter — in a PDF you can hand to your IT provider or leadership team.",
-  },
-] as const;
-
-const TRUST = [
-  "Designed for 5–50 employee businesses",
-  "Specific guidance for HIPAA, GLBA, and bar-regulated firms",
-  "Built by Tulsa Applied AI — local, not a Silicon Valley chatbot",
-  "Your data is confidential. No spam. No hard sell.",
-] as const;
-
-const FAQS = [
-  {
-    q: "How long does this take?",
-    a: "Plan on 5–7 minutes — a bit more if you pause to look up how your M365 tenant is set up.",
-  },
-  {
-    q: "What do I get at the end?",
-    a: "Your readiness score, a custom ROI range, written insights, and a downloadable PDF report you can share.",
-  },
-  {
-    q: "Do I need to be technical?",
-    a: "No. We translate the Microsoft and compliance terminology into plain language for owners and GMs.",
-  },
-  {
-    q: "Who sees my data?",
-    a: "Tulsa Applied AI only, for delivering your results and light follow-up. It is not sold or shared for unrelated marketing.",
-  },
-  {
-    q: "Is this really free?",
-    a: "Yes — the self-serve assessment and PDF are free. If you want hands-on work after that, most deeper engagements start at $2,500 depending on scope.",
-  },
-  {
-    q: "What if I use Google Workspace instead?",
-    a: "You will still get a useful score: the framework is platform-agnostic, but the most specific playbooks and gap analysis are written for Microsoft 365.",
-  },
-  {
-    q: "Will I be on a sales list?",
-    a: "We may send a short follow-up sequence over about seven days. You can unsubscribe anytime, and we stop — no years-long drip campaign.",
-  },
-] as const;
-
-function FaqItem({ question, answer }: { question: string; answer: string }) {
-  return (
-    <details className="group border-b border-border py-1">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 py-4 text-left text-sm font-medium text-foreground marker:content-none [&::-webkit-details-marker]:hidden">
-        {question}
-        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
-      </summary>
-      <p className="pb-4 text-sm leading-relaxed text-muted-foreground">{answer}</p>
-    </details>
-  );
+function demoResult(responses: AssessmentResponse) {
+  const { scores, tier, recommendedNextStep, insights } = calculateAssessmentResult(responses);
+  const priority = insights.find(insight => insight.severity === "critical") ?? insights[0];
+  return { scores, tier, recommendedNextStep, insights: [priority] };
 }
+
+const profiles = [
+  { id: "dental", label: "Dental practice", name: "Sample Dental Practice", context: "Healthcare · Tulsa, OK · 21–50 people", summary: "Strong identity controls. Undocumented workflows. A team still finding its footing with AI.", href: "/sample-report", result: demoResult(SAMPLE_DENTAL_RESPONSES) },
+  { id: "insurance", label: "Insurance agency", name: "Sample Regional Insurance Agency", context: "Insurance · Oklahoma City, OK · 21–50 people", summary: "Copilot seats are already purchased. Broad file access and missing labels make the foundation the priority.", href: "/copilot/sample-report", result: demoResult(SAMPLE_COPILOT_INSURANCE_RESPONSES) },
+];
+
+const navigation = [ { href: "#demo", label: "Try the product" }, { href: "#engineering", label: "The build" }, { href: "/about", label: "About" } ];
 
 export default function LandingPage() {
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="portfolio">
       <AiLandingAnalytics />
-      <MarketingHeader />
-
-      <main className="flex-1">
-        <section className="relative overflow-hidden border-b border-border">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 -z-10"
-          >
-            <div className="absolute inset-x-0 top-0 h-[28rem] bg-[radial-gradient(ellipse_at_top,theme(colors.primary/8%),transparent_60%)]" />
-            <div className="absolute -left-32 top-24 h-72 w-72 rounded-full bg-primary/5 blur-3xl" />
-            <div className="absolute -right-32 top-48 h-80 w-80 rounded-full bg-foreground/[0.04] blur-3xl" />
+      <a href="#main-content" className="portfolio-skip">Skip to content</a>
+      <header className="folio-header">
+        <div className="folio-container folio-header-inner">
+          <Link href="/" className="folio-brand" aria-label="Tulsa Applied AI home"><span className="folio-brand-mark"><Command size={21} aria-hidden="true" /></span><span>TULSA<span className="folio-brand-sub">APPLIED AI</span></span></Link>
+          <nav aria-label="Primary" className="folio-nav">{navigation.map(link => <Link key={link.href} href={link.href}>{link.label}</Link>)}</nav>
+          <a className="folio-source" href="https://github.com/jcsenka013-lgtm/tulsa-ai-readiness-index" target="_blank" rel="noopener noreferrer">Source code <ArrowUpRight size={16} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span></a>
+          <details className="folio-mobile-menu"><summary aria-label="Open navigation"><Menu size={22} /></summary><nav aria-label="Mobile primary">{navigation.map(link => <Link key={link.href} href={link.href}>{link.label}</Link>)}</nav></details>
+        </div>
+      </header>
+      <main id="main-content">
+        <section className="folio-hero folio-container">
+          <div className="folio-eyebrow"><span className="folio-status-dot" /> INDEPENDENT PROJECT / FULL-STACK PRODUCT</div>
+          <div className="folio-hero-grid">
+            <h1>Applied<br />intelligence.<br /><span className="folio-serif">Built to work.</span></h1>
+            <div className="folio-hero-aside"><span className="folio-index">PROJECT 001 — AI READINESS INDEX</span><p>Turning a complicated business question into a clear next move.</p><p className="folio-hero-description">A working assessment platform that connects Microsoft 365 expertise, thoughtful product design, and full-stack engineering.</p><div className="folio-hero-actions"><a href="#demo" className="folio-button">Explore the product <ArrowDown size={17} aria-hidden="true" /></a><a href="#engineering" className="folio-text-link">See how it’s built <ArrowUpRight size={16} aria-hidden="true" /></a></div></div>
           </div>
-          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-            <div className="max-w-3xl">
-              <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/70 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur">
-                <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden />
-                <span className="text-foreground">Free</span>
-                <span aria-hidden className="text-border">·</span>
-                <span>5 minutes</span>
-                <span aria-hidden className="text-border">·</span>
-                <span>No credit card</span>
-              </span>
-              <h1 className="mt-6 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl sm:leading-[1.05] md:text-6xl">
-                Is your business ready for{" "}
-                <span className="bg-gradient-to-br from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
-                  Microsoft 365 Copilot
-                </span>{" "}
-                and AI?
-              </h1>
-              <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                A free five-minute assessment for Oklahoma small and mid-sized
-                businesses. Get your readiness score, a personalized ROI estimate,
-                and a roadmap — delivered in a PDF you can share with your team.
-              </p>
-              <div className="mt-8 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:items-center">
-                <Link
-                  href="/assessment"
-                  className={cn(
-                    buttonVariants({ size: "lg" }),
-                    "group inline-flex h-12 justify-center px-6 text-base shadow-sm shadow-primary/10 sm:w-auto",
-                  )}
-                >
-                  Start the assessment
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </Link>
-                <Link
-                  href="/sample-report"
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "lg" }),
-                    "h-12 border-border px-6 text-base",
-                  )}
-                >
-                  See a sample report
-                </Link>
-              </div>
-              <ul className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground sm:text-sm">
-                {[
-                  "5-dimension readiness score",
-                  "Custom ROI estimate",
-                  "M365 compliance gap analysis",
-                  "Downloadable PDF report",
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-1.5">
-                    <CheckCircle2
-                      className="h-3.5 w-3.5 text-primary/80"
-                      aria-hidden
-                    />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div className="folio-hero-bottom"><span>DESIGN → LOGIC → DELIVERY</span><span>TULSA, OK <span aria-hidden="true">↗</span></span></div>
+        </section>
+        <section id="demo" className="folio-demo-section">
+          <div className="folio-container">
+            <div className="folio-section-heading"><div><span className="folio-eyebrow">01 / EXPERIENCE THE PRODUCT</span><h2>Less pitch.<br /><span className="folio-serif">More proof.</span></h2></div><p>Pick a business. Explore its readiness.<br />See what the system recommends.<br /><span>No signup. Fictional businesses. Real scoring.</span></p></div>
+            <ReadinessPreview profiles={profiles} />
+            <div className="folio-demo-caption"><span><span className="folio-status-dot" /> WORKING DEMO · SAME ENGINE AS THE ASSESSMENT</span><Link href="/assessment">Assess your own business <ArrowRight size={16} aria-hidden="true" /></Link></div>
           </div>
         </section>
-
-        <section className="border-b border-border bg-muted/40">
-          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-            <div className="max-w-2xl">
-              <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                Built for businesses that live in Microsoft 365
-              </h2>
-              <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Most small businesses run on Microsoft 365 — email, files, Teams,
-                and now Copilot. The difference between a successful AI rollout and
-                an expensive mistake lives in your M365 configuration: permissions,
-                sensitivity labels, Purview policies, Defender coverage, Conditional
-                Access. Our assessment evaluates the specific foundation AI
-                actually requires. If you&apos;re running Google Workspace or a
-                mix, you&apos;ll still get value — but M365 shops get the most
-                specific guidance.
-              </p>
-            </div>
-          </div>
+        <section className="folio-context folio-container">
+          <span className="folio-eyebrow">THE PROBLEM</span><div><h2>“Should we adopt AI?”<br />is the wrong first question.</h2><p>Before a business buys another tool, it needs to understand its data, processes, people, and appetite for change. The AI Readiness Index turns those dependencies into a structured assessment and a practical roadmap.</p><p className="folio-context-note">My work connects the assessment experience, scoring logic, reporting, and follow-up into one product.</p></div>
         </section>
-
-        <section className="border-b border-border">
-          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              What we measure
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
-              Five dimensions that determine whether Microsoft 365 Copilot and
-              similar tools will return value or create new risk.
-            </p>
-            <ul className="mt-10 grid list-none gap-4 sm:grid-cols-2">
-              {FIVE_DOMAINS.map((d) => (
-                <li key={d.title}>
-                  <Card className="group h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-md">
-                    <CardHeader className="space-y-1">
-                      <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-gradient-to-br from-muted/60 to-background transition-colors group-hover:border-primary/20 group-hover:from-primary/5">
-                        <d.icon
-                          className="h-5 w-5 text-foreground/80 transition-colors group-hover:text-primary"
-                          aria-hidden
-                        />
-                      </div>
-                      <CardTitle className="text-base leading-snug sm:text-lg">
-                        {d.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm leading-relaxed text-muted-foreground">
-                        {d.body}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        <section className="border-b border-border bg-muted/40">
-          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              What you&apos;ll walk away with
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground sm:text-base">
-              Three things the moment you finish — built for decision-makers, not
-              IT architects only.
-            </p>
-            <div className="mt-10 grid gap-6 md:grid-cols-3">
-              {BENEFITS.map(({ icon: Icon, title, description }) => (
-                <Card key={title} className="h-full">
-                  <CardHeader>
-                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background">
-                      <Icon className="h-5 w-5 text-foreground" aria-hidden="true" />
-                    </div>
-                    <CardTitle className="text-lg">{title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-sm leading-relaxed text-muted-foreground">
-                      {description}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="border-b border-border">
-          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Built for your context
-            </h2>
-            <ul className="mt-8 max-w-2xl space-y-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-              {TRUST.map((line) => (
-                <li key={line} className="flex gap-2">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                  {line}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        <section className="border-b border-border bg-muted/40">
-          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Frequently asked questions
-            </h2>
-            <div className="mt-2 max-w-2xl divide-y divide-border">
-              {FAQS.map((item) => (
-                <FaqItem key={item.q} question={item.q} answer={item.a} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-            <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-8 sm:p-12">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,theme(colors.primary/10%),transparent_60%)]"
-              />
-              <div className="flex flex-col items-stretch gap-6 md:flex-row md:items-center md:justify-between">
-                <div className="max-w-xl">
-                  <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-                    Ready to see where you stand?
-                  </h2>
-                  <p className="mt-2 text-sm text-muted-foreground sm:text-base">
-                    No credit card. Your personalized PDF is generated when you
-                    finish.
-                  </p>
-                </div>
-                <Link
-                  href="/assessment"
-                  className={cn(
-                    buttonVariants({ size: "lg" }),
-                    "group h-12 justify-center px-8 text-base shadow-sm shadow-primary/10 md:shrink-0",
-                  )}
-                >
-                  Start the free assessment
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
+        <ProjectShowcase />
+        <section className="folio-closing folio-container"><span className="folio-eyebrow">EXPLORE FURTHER</span><h2>The details<br /><span className="folio-serif">make the difference.</span></h2><div className="folio-closing-links"><Link href="/sample-report">Read the full report <ArrowUpRight aria-hidden="true" /></Link><Link href="/copilot">Explore the Copilot product <ArrowUpRight aria-hidden="true" /></Link><Link href="/contact">Get in touch <ArrowUpRight aria-hidden="true" /></Link></div></section>
       </main>
-
-      <MarketingFooter />
+      <footer className="folio-footer folio-container"><div><strong>TULSA APPLIED AI</strong><p>Practical thinking. Working software.</p></div><nav aria-label="Footer"><Link href="/about">About</Link><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/contact">Contact</Link></nav><span>© {new Date().getFullYear()} Tulsa Applied AI LLC</span></footer>
     </div>
   );
 }

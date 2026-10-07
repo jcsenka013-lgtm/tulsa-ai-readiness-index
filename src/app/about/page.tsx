@@ -37,7 +37,7 @@ export default function AboutPage() {
   return (
     <div className="flex min-h-full flex-col">
       <MarketingHeader />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <div className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
           <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             About Tulsa Applied AI
