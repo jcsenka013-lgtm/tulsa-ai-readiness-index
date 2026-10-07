@@ -25,7 +25,7 @@ This document summarizes what exists in the **Tulsa AI Readiness Index** web app
 | Fonts | **Geist** / **Geist Mono** (Google Fonts via `next/font`) |
 | Data | **Supabase** (Postgres, planned auth) — `@supabase/ssr`, `@supabase/supabase-js` |
 | Testing | **Vitest** |
-| Hosting (documented) | **Vercel** (see `README.md`) |
+| Hosting | **Cloudflare Workers** via vinext, live at tulsaappliedai.com (see `README.md`) |
 
 **Scripts:** `npm run dev`, `build`, `start`, `lint`, `test`, `test:watch`.
 
@@ -164,11 +164,11 @@ Public marketing and the five benefit cards on the landing page use the same dom
 
 ## Repository & docs
 
-- **`README.md`** — features, stack, setup, env vars, migrations, Vercel deploy, project layout.
+- **`README.md`** — features, stack, setup, env vars, migrations, Cloudflare deploy, project layout.
 - **`CLAUDE.md`**, **`AGENTS.md`** — agent/editor notes (including Next.js version guidance in `AGENTS.md`).
 
 ---
 
 ## Summary
 
-The codebase is a complete end-to-end product: data-driven question bank, scoring + tiering + recommendations, ROI banding, narrative insights, M365 gap analysis, assessment and results UI, PDF reports, email automation, Slack/Sentry monitoring, an admin dashboard, Supabase schema, and tests. What remains is production configuration (Supabase, Resend domain, Vercel env vars) and the smoke tests in `docs/LAUNCH-CHECKLIST.md`.
+The codebase is a complete end-to-end product: data-driven question bank, scoring + tiering + recommendations, ROI banding, narrative insights, M365 gap analysis, assessment and results UI, PDF reports, email automation, Slack/Sentry monitoring, an admin dashboard, Supabase schema, and tests. It is deployed on Cloudflare Workers with Supabase and a verified Resend domain; `docs/LAUNCH-CHECKLIST.md` lists the remaining production checks (Calendly links, Slack, Sentry).

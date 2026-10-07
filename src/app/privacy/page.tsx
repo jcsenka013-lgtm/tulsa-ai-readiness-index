@@ -81,7 +81,7 @@ export default function PrivacyPage() {
               <li>Supabase (database) — data stored in US region per project settings.</li>
               <li>Resend (transactional email).</li>
               <li>Calendly (scheduling, when you book through our offering).</li>
-              <li>Vercel (web hosting, serverless functions, logs as configured).</li>
+              <li>Cloudflare (web hosting, Workers, DNS, logs as configured).</li>
               <li>Slack (internal operational notifications, not a customer database).</li>
             </ul>
             <p>
