@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
+  { href: "/#engineering", label: "Behind the build" },
   { href: "/about", label: "About" },
   { href: "/sample-report", label: "Sample report" },
   { href: "/contact", label: "Contact" },
@@ -16,6 +17,7 @@ const LINKEDIN_HREF = "https://www.linkedin.com/company/tulsa-applied-ai";
 export function MarketingHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-background/70 backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-background/60">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:z-50 focus:rounded-md focus:bg-background focus:p-3">Skip to content</a>
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <Link

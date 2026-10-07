@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tulsa-ai-readiness-index",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-10-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "not_found_handling": "none",
+    "binding": "ASSETS"
+  },
+  "images": { "binding": "IMAGES" },
+  "routes": [
+    { "pattern": "tulsaappliedai.com", "custom_domain": true },
+    { "pattern": "www.tulsaappliedai.com", "custom_domain": true }
+  ],
+  // Hourly email follow-up sequences (see worker/index.ts).
+  "triggers": { "crons": ["0 * * * *"] },
+  "observability": { "enabled": true },
+  // Public configuration. Secrets (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY,
+  // CRON_SECRET, ADMIN_PASSWORD) are set with `wrangler secret put`.
+  "vars": {
+    "NEXT_PUBLIC_SITE_URL": "https://tulsaappliedai.com",
+    "SITE_URL": "https://tulsaappliedai.com",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://bjvhxzvorvwbrobqiqzv.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_0aG-bESQ_pU8MwQGAHBONQ_a9cIxxpR",
+    "EMAIL_FROM": "results@tulsaappliedai.com",
+    "EMAIL_SIGNATURE_NAME": "Tulsa Applied AI",
+    "EMAIL_SIGNATURE_EMAIL": "hello@tulsaappliedai.com",
+    "BUSINESS_ADDRESS": "Tulsa, OK",
+    "ADMIN_USER": "admin"
+  }
+}

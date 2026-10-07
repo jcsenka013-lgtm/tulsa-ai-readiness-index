@@ -13,7 +13,7 @@ export default function PrivacyPage() {
   return (
     <div className="flex min-h-full flex-col">
       <MarketingHeader />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <div className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
           <p className="text-sm font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-500">
             Requires attorney review before public launch
@@ -81,7 +81,7 @@ export default function PrivacyPage() {
               <li>Supabase (database) — data stored in US region per project settings.</li>
               <li>Resend (transactional email).</li>
               <li>Calendly (scheduling, when you book through our offering).</li>
-              <li>Vercel (web hosting, serverless functions, logs as configured).</li>
+              <li>Cloudflare (web hosting, Workers, DNS, logs as configured).</li>
               <li>Slack (internal operational notifications, not a customer database).</li>
             </ul>
             <p>

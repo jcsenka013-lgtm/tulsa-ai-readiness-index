@@ -1,10 +1,10 @@
 # Email automation, Slack, and cron — deployment guide
 
-This document covers production setup for the Tulsa AI Readiness Index lead funnel: Resend transactional email, Supabase `email_log` / `unsubscribes`, Vercel cron follow-ups, and Slack webhooks.
+This document covers production setup for the Tulsa AI Readiness Index lead funnel: Resend transactional email, Supabase `email_log` / `unsubscribes`, Cloudflare Workers cron follow-ups, and Slack webhooks.
 
 ## 1. Environment variables
 
-Add these to Vercel (and mirror in `.env.local` for local testing where noted).
+Public values live in `vars` in `wrangler.jsonc`; secrets are set with `npx wrangler secret put <NAME>`. Mirror them in `.env.local` for local testing.
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
@@ -13,7 +13,7 @@ Add these to Vercel (and mirror in `.env.local` for local testing where noted).
 | `SITE_URL` or `NEXT_PUBLIC_SITE_URL` | Yes | Absolute origin for links in email and Slack (no trailing slash) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Server-side Supabase (already required for assessments) |
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Used to build Supabase dashboard links in Slack |
-| `CRON_SECRET` | Yes (prod cron) | Long random string; Vercel cron sends `Authorization: Bearer <CRON_SECRET>` |
+| `CRON_SECRET` | Yes (prod cron) | Long random string; the Worker's scheduled handler sends `Authorization: Bearer <CRON_SECRET>` |
 | `SLACK_WEBHOOK_URL_LEADS` | No | Incoming webhook for new leads + booked-call pings |
 | `SLACK_WEBHOOK_URL_ERRORS` | No | Incoming webhook for email pipeline errors (no PII) |
 | `CALENDLY_DISCOVERY_URL` | No | 30-minute discovery scheduling link (defaults in code) |
@@ -33,7 +33,7 @@ Use a cryptographically random string (32+ bytes), for example:
 openssl rand -hex 32
 ```
 
-Store the value in Vercel **Environment Variables** as `CRON_SECRET`. Vercel Cron will send it as a Bearer token when invoking `/api/cron/email-sequences` (when the project has `CRON_SECRET` defined).
+Store it as a Worker secret: `npx wrangler secret put CRON_SECRET`. The scheduled handler in `worker/index.ts` sends it as a Bearer token when invoking `/api/cron/email-sequences`.
 
 ## 2. Resend account and domain
 
@@ -85,16 +85,15 @@ Apply `supabase/migrations/004_email_infra.sql` to your project (CLI `supabase d
 
 Messages are plain text (markdown-style asterisks for bold in some clients). No passwords or full PII are posted to the errors channel.
 
-## 6. Vercel cron
+## 6. Cloudflare cron trigger
 
-`vercel.json` schedules:
+`wrangler.jsonc` schedules the Worker hourly:
 
-```json
-"path": "/api/cron/email-sequences",
-"schedule": "0 * * * *"
+```jsonc
+"triggers": { "crons": ["0 * * * *"] }
 ```
 
-Ensure `CRON_SECRET` is set in Vercel. After deploy, confirm in the Vercel dashboard under **Cron Jobs** that the job is registered.
+The `scheduled` handler in `worker/index.ts` calls `/api/cron/email-sequences` with the `CRON_SECRET` Bearer token. After deploy, `wrangler deploy` prints `schedule: 0 * * * *`; the trigger is also listed in the Cloudflare dashboard under **Workers & Pages → tulsa-ai-readiness-index → Settings → Trigger events**.
 
 ## 7. Manual testing checklist
 

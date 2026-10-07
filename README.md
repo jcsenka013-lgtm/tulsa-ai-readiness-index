@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/jcsenka013-lgtm/tulsa-ai-readiness-index/actions/workflows/ci.yml/badge.svg)](https://github.com/jcsenka013-lgtm/tulsa-ai-readiness-index/actions/workflows/ci.yml)
 
+**Live:** [tulsaappliedai.com](https://tulsaappliedai.com)
+
 A full-stack lead-generation and diagnostic web app for **Tulsa Applied AI LLC**.
 Small and mid-sized businesses take a five-minute assessment and get a 0–100
 AI-readiness score across five weighted domains, an ROI estimate, prioritized
@@ -27,7 +29,8 @@ The app runs two products on one codebase:
   private Supabase Storage bucket, and served via short-lived signed URLs.
 - **Email automation** — results email plus 24h / 72h / 7-day follow-ups and
   abandoned-assessment recovery via Resend + React Email, run by an hourly
-  Vercel Cron job, with idempotent send logging and one-click unsubscribe.
+  Cloudflare Workers cron trigger, with idempotent send logging and one-click
+  unsubscribe.
 - **Ops** — Slack lead and booked-call alerts, Sentry error monitoring tagged
   by product, per-IP rate limiting, per-product analytics funnel events, and a
   password-protected admin leads dashboard.
@@ -37,14 +40,14 @@ The app runs two products on one codebase:
 
 | Layer | Choice |
 | --- | --- |
-| Framework | Next.js 16 (App Router, Route Handlers, Proxy), React 19, TypeScript |
+| Framework | Next.js 16 (App Router, Route Handlers, Proxy), React 19, TypeScript; built for Workers with [vinext](https://github.com/cloudflare/vinext) on Vite 8 |
 | UI | Tailwind CSS v4, shadcn/ui, Base UI, Floating UI |
 | Data | Supabase (Postgres with RLS, Storage) |
 | Email | Resend, React Email |
 | PDF | @react-pdf/renderer |
 | Monitoring | Sentry, Slack incoming webhooks |
 | Testing / CI | Vitest, ESLint, GitHub Actions |
-| Hosting | Vercel (including Vercel Cron) |
+| Hosting | Cloudflare Workers (custom domain, cron trigger, Wrangler) |
 
 ## Project layout
 
@@ -63,7 +66,10 @@ src/
     products/             # Per-product config (AI vs Copilot)
     supabase/             # Browser + server clients
   proxy.ts                # Basic Auth for /admin
+worker/index.ts           # Workers entry: vinext fetch handler + hourly cron
 supabase/migrations/      # SQL schema, applied in order
+vite.config.ts            # vinext + Cloudflare build (see "Running on Workers")
+wrangler.jsonc            # Worker config: domains, cron, public vars
 ```
 
 ## Local setup
@@ -97,20 +103,41 @@ the browser. Set `ADMIN_PASSWORD` to enable `/admin`.
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Dev server on `localhost:3000` |
-| `npm run build` / `npm start` | Production build / serve |
+| `npm run dev` | Next.js dev server on `localhost:3000` |
+| `npm run dev:vinext` | vinext dev server in the Workers runtime (`localhost:3001`) |
+| `npm run build:vinext` / `npm run start:vinext` | Workers build / serve it locally in workerd |
+| `npm run build` | Next.js production build (kept as a compatibility check in CI) |
+| `npm run deploy` | Production Workers build + `wrangler deploy` |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | Generate route types and run `tsc` |
 | `npm test` | Vitest suite |
 | `npm run generate-sample-pdf` | Render a sample PDF report locally |
 
-## Deploying
+## Deploying (Cloudflare Workers)
 
-1. Import the repo at <https://vercel.com/new>.
-2. Add the environment variables from `.env.local.example` (production values;
-   `NEXT_PUBLIC_SITE_URL` is the production origin with no trailing slash).
-3. Deploy. The hourly email cron in `vercel.json` registers automatically and
-   authenticates with `CRON_SECRET`.
+Production runs on Cloudflare Workers at `tulsaappliedai.com` / `www`, both
+configured as custom domains in [`wrangler.jsonc`](wrangler.jsonc) along with the
+hourly email cron and the public configuration (`vars`).
+
+1. Authenticate Wrangler: `npx wrangler login`, or set `CLOUDFLARE_API_TOKEN`
+   (Workers edit + zone DNS edit) and `CLOUDFLARE_ACCOUNT_ID`.
+2. Set the secrets once:
+   `npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY` (and `RESEND_API_KEY`,
+   `CRON_SECRET`, `ADMIN_PASSWORD`).
+3. `npm run deploy`.
+
+### Running on Workers
+
+`vite.config.ts` includes two small resolver plugins needed because route
+handlers run in the React Server Components environment on workerd:
+
+- **Full React for the PDF and email renderers.** `@react-pdf/renderer` and
+  `@react-email/render` (via `react-dom/server.edge`) need React's full build,
+  not its react-server build. Next.js gets the same effect by treating them as
+  server-external packages.
+- **Precompiled Yoga WebAssembly.** Workers forbid compiling WebAssembly at
+  runtime, so the layout engine used by `@react-pdf` is extracted at build time
+  and loaded as a `.wasm` module through Emscripten's `instantiateWasm` hook.
 
 See [`docs/DEPLOYMENT-EMAIL.md`](docs/DEPLOYMENT-EMAIL.md) for Resend/DNS setup
 and [`docs/LAUNCH-CHECKLIST.md`](docs/LAUNCH-CHECKLIST.md) for production smoke
