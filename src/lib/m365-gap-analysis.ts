@@ -514,7 +514,6 @@ function buildCopilotPrerequisites(p: ParsedPosture): CopilotPrerequisiteRow[] {
       "Microsoft 365 admin center → Users → Active users — ensure UPNs sync from Entra ID; eliminate shared generic accounts where possible.",
   });
 
-  const loopOk = p.loop === "yes" || p.loop === "unknown";
   rows.push({
     requirement:
       "Microsoft Loop (recommended for Loop workspace Copilot scenarios)",
@@ -525,9 +524,6 @@ function buildCopilotPrerequisites(p: ParsedPosture): CopilotPrerequisiteRow[] {
         : "Confirm Loop policy aligns with sensitivity label publication (labels should exist before wide Copilot + Loop).",
   });
 
-  const labelsOk =
-    p.sensitivityLabels === "org_wide" ||
-    (p.sensitivityLabels === "pilot" && p.regulatedData.none);
   rows.push({
     requirement:
       "Sensitivity labels published (Microsoft Purview Information Protection)",

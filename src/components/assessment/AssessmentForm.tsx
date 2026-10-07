@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useReducer,
   useRef,
@@ -82,27 +83,6 @@ function isAnswered(
   }
   return Array.isArray(raw) && raw.length > 0;
 }
-
-const initialContact: ContactState = {
-  fullName: "",
-  email: "",
-  phone: "",
-  companyName: "",
-  priority6m: "",
-  consent: false,
-  personalEmailAck: false,
-};
-
-const baseInitial: State = {
-  step: 1,
-  responses: {},
-  industry: null,
-  employeeCountRange: null,
-  annualRevenueRange: null,
-  hoursPerWeekRepetitive: null,
-  roleTitle: null,
-  contact: initialContact,
-};
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -306,7 +286,9 @@ export function AssessmentForm({
     (init) => stateFromRow(init.initial, init.productType),
   );
   const stateRef = useRef(state);
-  stateRef.current = state;
+  useLayoutEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "error">(
     "idle",

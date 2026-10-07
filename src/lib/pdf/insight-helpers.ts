@@ -1,12 +1,5 @@
 import type { Insight, InsightSeverity } from "@/lib/scoring/generateInsights";
 
-const EXEC_SUMMARY_ORDER: InsightSeverity[] = [
-  "critical",
-  "warning",
-  "opportunity",
-  "strength",
-];
-
 const ORDER_INDEX: Record<InsightSeverity, number> = {
   critical: 0,
   warning: 1,

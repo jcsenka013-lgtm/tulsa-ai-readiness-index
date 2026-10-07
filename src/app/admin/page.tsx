@@ -46,7 +46,7 @@ export default async function AdminHomePage() {
       <div>
         <h1 className="text-2xl font-semibold">Admin</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Internal dashboard — protect this route in production (auth / allowlist).
+          Internal dashboard (Basic Auth via ADMIN_USER / ADMIN_PASSWORD).
         </p>
       </div>
       <section className="rounded-lg border border-border bg-card p-6 text-card-foreground shadow-sm">

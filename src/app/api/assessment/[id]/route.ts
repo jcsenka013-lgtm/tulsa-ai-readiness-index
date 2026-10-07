@@ -3,6 +3,8 @@ import type { AssessmentResponse } from "@/types/assessment";
 
 export const dynamic = "force-dynamic";
 
+const CONTACT_FIELDS = ["email", "phone", "full_name", "role_title"] as const;
+
 function jsonError(message: string, status: number) {
   return Response.json({ error: message }, { status });
 }
@@ -28,6 +30,13 @@ export async function GET(
   }
   if (!data) {
     return jsonError("Assessment not found", 404);
+  }
+
+  // Completed results are shareable by link, so drop the lead's contact details.
+  if (data.status === "completed") {
+    const publicRow: Record<string, unknown> = { ...data };
+    for (const key of CONTACT_FIELDS) delete publicRow[key];
+    return Response.json(publicRow);
   }
 
   return Response.json(data);
