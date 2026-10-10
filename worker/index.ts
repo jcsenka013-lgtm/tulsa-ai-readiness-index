@@ -1,10 +1,15 @@
 import handler from "vinext/server/fetch-handler";
 
-type Env = { CRON_SECRET?: string };
+import { registerWorkersAi, type WorkersAiBinding } from "../src/lib/assistant/workers-ai";
+
+type Env = { CRON_SECRET?: string; AI?: WorkersAiBinding };
 type Ctx = { waitUntil(promise: Promise<unknown>): void };
 
 const worker = {
   fetch(request: Request, env: Env, ctx: Ctx) {
+    // Route handlers can't see `env`; hand the Workers AI binding to the
+    // results assistant's embedding search.
+    registerWorkersAi(env.AI);
     return handler.fetch(request, env, ctx);
   },
 

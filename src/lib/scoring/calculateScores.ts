@@ -149,7 +149,7 @@ export function calculateDimensionScores(
 // domain weights (currently 25 / 25 / 20 / 15 / 15 = 100).
 // -----------------------------------------------------------------------------
 
-const DOMAIN_FIELD_BY_ID: Record<DomainId, keyof DomainScores> = {
+export const DOMAIN_FIELD_BY_ID: Record<DomainId, keyof DomainScores> = {
   data_security_compliance: "dataSecurityCompliance",
   operational_process_maturity: "operationalProcessMaturity",
   technology_infrastructure: "technologyInfrastructure",

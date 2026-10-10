@@ -8,6 +8,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress, ProgressIndicator, ProgressTrack } from "@/components/ui/progress";
 import { getDiscoveryCalendlyWithUtm } from "@/lib/calendly-utm";
+import { ResultsAssistant } from "@/components/results/ResultsAssistant";
 import { ResultsView } from "@/components/results/ResultsView";
 import type { M365GapAnalysisReport } from "@/lib/m365-gap-analysis";
 import { recommendedNextStepHeadline } from "@/lib/pdf/next-step-content";
@@ -354,6 +355,10 @@ export function ResultsReportView({
             ) : null}
           </CardContent>
         </Card>
+      ) : null}
+
+      {mode === "live" && assessmentId ? (
+        <ResultsAssistant assessmentId={assessmentId} productType={productType} />
       ) : null}
 
       <div className="flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
