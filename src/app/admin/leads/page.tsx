@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 
 type LeadRow = {
   id: string;
+  assessment_id: string | null;
   email: string;
   company_name: string | null;
   full_name: string | null;
@@ -37,7 +38,7 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
 
   let q = supabase
     .from("leads")
-    .select("id, email, company_name, full_name, status, source_product, created_at")
+    .select("id, assessment_id, email, company_name, full_name, status, source_product, created_at")
     .order("created_at", { ascending: false });
 
   if (productFilter === "ai_readiness" || productFilter === "copilot_readiness") {
@@ -104,7 +105,18 @@ export default async function AdminLeadsPage({ searchParams }: PageProps) {
                 <tr key={row.id} className="border-b border-border last:border-0">
                   <td className="px-3 py-2">{productLabel(row.source_product)}</td>
                   <td className="px-3 py-2 font-mono text-xs">{row.email}</td>
-                  <td className="px-3 py-2">{row.company_name ?? "—"}</td>
+                  <td className="px-3 py-2">
+                    {row.assessment_id ? (
+                      <Link
+                        href={`/admin/leads/${row.assessment_id}`}
+                        className="font-medium underline-offset-4 hover:underline"
+                      >
+                        {row.company_name ?? "View lead"}
+                      </Link>
+                    ) : (
+                      (row.company_name ?? "—")
+                    )}
+                  </td>
                   <td className="px-3 py-2">{row.full_name ?? "—"}</td>
                   <td className="px-3 py-2">{row.status}</td>
                   <td className="px-3 py-2 text-muted-foreground">
