@@ -34,7 +34,7 @@ export async function POST(
     return jsonError("Invalid messages", 400);
   }
 
-  const limit = checkAssistantLimit(getClientIpFromRequest(request), id);
+  const limit = await checkAssistantLimit(getClientIpFromRequest(request), id);
   if (!limit.allowed) {
     return jsonError("Too many questions for now. Try again later.", 429, {
       "Retry-After": String(limit.retryAfterSec),

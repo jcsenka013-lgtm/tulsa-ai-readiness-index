@@ -1,5 +1,7 @@
 import type { ProductType } from "@/types/assessment";
 
+import { workersLimitAllows } from "./workers-limiter";
+
 type WindowEntry = { count: number; windowStartMs: number };
 
 const store = new Map<string, WindowEntry>();
@@ -22,18 +24,22 @@ function clientKey(ip: string, product: ProductType): string {
 }
 
 /**
- * Per-IP, per-product fixed window rate limit (best effort on multi-instance
- * deploys — for strict limits, add Upstash/Redis in front).
+ * Per-IP, per-product limits: a per-minute Workers Rate Limiting binding
+ * (shared across isolates in a Cloudflare location) in front of the 15-minute
+ * in-memory window (per isolate, best effort).
  */
-export function checkAssessmentCreateLimit(
+export async function checkAssessmentCreateLimit(
   clientIp: string,
   product: ProductType,
-): { allowed: true } | { allowed: false; retryAfterSec: number } {
+): Promise<{ allowed: true } | { allowed: false; retryAfterSec: number }> {
   if (process.env.ASSESSMENT_CREATE_RATE_LIMIT_DISABLED === "true") {
     return { allowed: true };
   }
 
   const key = clientKey(clientIp || "unknown", product);
+  if (!(await workersLimitAllows("ASSESSMENT_CREATE_LIMITER", key))) {
+    return { allowed: false, retryAfterSec: 60 };
+  }
   const max = limitForProduct(product);
   const now = Date.now();
   const existing = store.get(key);
@@ -53,7 +59,14 @@ export function checkAssessmentCreateLimit(
   return { allowed: false, retryAfterSec: Math.ceil(remainingMs / 1000) };
 }
 
+/**
+ * Client IP for rate limiting. Prefers Cloudflare's CF-Connecting-IP: the
+ * first X-Forwarded-For entry is whatever the client sent (Cloudflare appends
+ * to an existing header), so trusting it lets anyone dodge the limits.
+ */
 export function getClientIpFromRequest(request: Request): string {
+  const cf = request.headers.get("cf-connecting-ip");
+  if (cf) return cf.trim();
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
     const first = forwarded.split(",")[0]?.trim();

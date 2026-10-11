@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   setSentryProductTypeTag(product_type);
 
   const ip = getClientIpFromRequest(request);
-  const limit = checkAssessmentCreateLimit(ip, product_type);
+  const limit = await checkAssessmentCreateLimit(ip, product_type);
   if (!limit.allowed) {
     return Response.json(
       { error: "Too many requests. Please try again later." },

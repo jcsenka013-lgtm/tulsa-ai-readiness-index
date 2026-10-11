@@ -11,6 +11,12 @@
   "images": { "binding": "IMAGES" },
   // Workers AI embeddings for the results assistant's guidance search.
   "ai": { "binding": "AI" },
+  // Per-minute limits shared across isolates in a location (see
+  // src/lib/rate-limit/workers-limiter.ts). Period must be 10 or 60 seconds.
+  "ratelimits": [
+    { "name": "ASSESSMENT_CREATE_LIMITER", "namespace_id": "4101", "simple": { "limit": 10, "period": 60 } },
+    { "name": "ASSISTANT_LIMITER", "namespace_id": "4102", "simple": { "limit": 8, "period": 60 } }
+  ],
   "routes": [
     { "pattern": "tulsaappliedai.com", "custom_domain": true },
     { "pattern": "www.tulsaappliedai.com", "custom_domain": true }
