@@ -22,9 +22,16 @@ The app runs two products on one codebase:
   gate → questions), driven by a JSON question bank (48 weighted questions).
 - **Scoring engine** — weighted domain scores, readiness tier, recommended next
   step with compliance overrides, ROI banding, and a prioritized rule-based
-  insight generator. Covered by 84 Vitest unit tests.
+  insight generator. Covered by 100 Vitest unit tests.
 - **Microsoft 365 gap analysis** — Copilot prerequisites, compliance gaps,
   licensing upgrades, and quick wins.
+- **Results assistant** — a chat panel on the results page backed by Claude
+  (`claude-opus-5-5`) with tool calling. Tools read only the visitor's own
+  completed assessment (scores, answers, M365 gaps, recommended engagement;
+  never contact details), and a `search_guidance` tool does semantic search
+  over the site's published guidance using Workers AI embeddings
+  (`@cf/baai/bge-base-en-v1.5`), falling back to keyword search outside
+  Workers. Rate-limited per IP and per assessment.
 - **PDF report** generated server-side with `@react-pdf/renderer`, stored in a
   private Supabase Storage bucket, and served via short-lived signed URLs.
 - **Email automation** — results email plus 24h / 72h / 7-day follow-ups and
@@ -43,6 +50,7 @@ The app runs two products on one codebase:
 | Framework | Next.js 16 (App Router, Route Handlers, Proxy), React 19, TypeScript; built for Workers with [vinext](https://github.com/cloudflare/vinext) on Vite 8 |
 | UI | Tailwind CSS v4, shadcn/ui, Base UI, Floating UI |
 | Data | Supabase (Postgres with RLS, Storage) |
+| AI | Claude API (`@anthropic-ai/sdk`, tool use), Workers AI embeddings |
 | Email | Resend, React Email |
 | PDF | @react-pdf/renderer |
 | Monitoring | Sentry, Slack incoming webhooks |
@@ -58,6 +66,8 @@ src/
   components/             # assessment/, results/, marketing/, ui/ (shadcn)
   lib/
     scoring/              # Domain scores, tiers, ROI, insights (+ tests)
+    assistant/            # Results assistant: Claude tool loop, tools,
+                          # guidance corpus, embedding search (+ tests)
     questions/            # questions.json, Copilot supplemental set, firmographics
     m365-gap-analysis.ts  # Microsoft 365 / Copilot gap engine
     pdf/                  # React-PDF report document and generation
@@ -66,7 +76,8 @@ src/
     products/             # Per-product config (AI vs Copilot)
     supabase/             # Browser + server clients
   proxy.ts                # Basic Auth for /admin
-worker/index.ts           # Workers entry: vinext fetch handler + hourly cron
+worker/index.ts           # Workers entry: vinext fetch handler, hourly cron,
+                          # Workers AI binding hand-off
 supabase/migrations/      # SQL schema, applied in order
 vite.config.ts            # vinext + Cloudflare build (see "Running on Workers")
 wrangler.jsonc            # Worker config: domains, cron, public vars
@@ -96,7 +107,9 @@ limit) for generated PDF reports — see `003_pdf_tracking.sql`.
 The full list with comments is in [`.env.local.example`](.env.local.example).
 Only the Supabase variables and `NEXT_PUBLIC_SITE_URL` are required to run the
 assessment locally; email, Slack, Sentry, and Calendly degrade gracefully when
-unset. `SUPABASE_SERVICE_ROLE_KEY` is server-only and must never be exposed to
+unset. The results assistant needs `ANTHROPIC_API_KEY` and hides itself when
+it is unset; its guidance search uses keyword matching under `npm run dev`
+because the Workers AI binding only exists in workerd. `SUPABASE_SERVICE_ROLE_KEY` is server-only and must never be exposed to
 the browser. Set `ADMIN_PASSWORD` to enable `/admin`.
 
 ## Scripts
@@ -123,7 +136,8 @@ hourly email cron and the public configuration (`vars`).
    (Workers edit + zone DNS edit) and `CLOUDFLARE_ACCOUNT_ID`.
 2. Set the secrets once:
    `npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY` (and `RESEND_API_KEY`,
-   `CRON_SECRET`, `ADMIN_PASSWORD`).
+   `CRON_SECRET`, `ADMIN_PASSWORD`, `ANTHROPIC_API_KEY`). Workers AI needs no
+   secret; the `AI` binding in `wrangler.jsonc` covers it.
 3. `npm run deploy`.
 
 ### Running on Workers

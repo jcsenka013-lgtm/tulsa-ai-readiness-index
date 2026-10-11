@@ -6,6 +6,7 @@ const LINKEDIN_HREF = "https://www.linkedin.com/company/tulsa-applied-ai";
 
 const FOOTER_LINKS = [
   { href: "/about", label: "About" },
+  { href: "/case-study", label: "Behind the build" },
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
   { href: "/contact", label: "Contact" },

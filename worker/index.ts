@@ -1,10 +1,25 @@
 import handler from "vinext/server/fetch-handler";
 
-type Env = { CRON_SECRET?: string };
+import { registerWorkersAi, type WorkersAiBinding } from "../src/lib/assistant/workers-ai";
+import { registerRateLimiters, type RateLimitBinding } from "../src/lib/rate-limit/workers-limiter";
+
+type Env = {
+  CRON_SECRET?: string;
+  AI?: WorkersAiBinding;
+  ASSESSMENT_CREATE_LIMITER?: RateLimitBinding;
+  ASSISTANT_LIMITER?: RateLimitBinding;
+};
 type Ctx = { waitUntil(promise: Promise<unknown>): void };
 
 const worker = {
   fetch(request: Request, env: Env, ctx: Ctx) {
+    // Route handlers can't see `env`; hand the Workers AI binding to the
+    // results assistant's embedding search.
+    registerWorkersAi(env.AI);
+    registerRateLimiters({
+      ASSESSMENT_CREATE_LIMITER: env.ASSESSMENT_CREATE_LIMITER,
+      ASSISTANT_LIMITER: env.ASSISTANT_LIMITER,
+    });
     return handler.fetch(request, env, ctx);
   },
 

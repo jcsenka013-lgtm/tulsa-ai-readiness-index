@@ -6,7 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/#engineering", label: "Behind the build" },
+  { href: "/case-study", label: "Behind the build" },
   { href: "/about", label: "About" },
   { href: "/sample-report", label: "Sample report" },
   { href: "/contact", label: "Contact" },

@@ -17,6 +17,7 @@
 import { after, type NextRequest } from "next/server";
 import { createElement } from "react";
 
+import { toPublicAssessment } from "@/lib/assessment/public-row";
 import { sendEmail } from "@/lib/email/client";
 import {
   firstNameFromFullName,
@@ -271,7 +272,10 @@ export async function POST(
 
   return Response.json({
     product_type: productType,
-    assessment: updatedUnknown,
+    // Re-POSTable by anyone with the results link, so never echo contact details.
+    assessment: updatedUnknown
+      ? toPublicAssessment(updatedUnknown as Record<string, unknown>)
+      : null,
     scores: result.scores,
     tier: result.tier,
     recommendedNextStep: result.recommendedNextStep,
