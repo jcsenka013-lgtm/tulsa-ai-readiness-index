@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress, ProgressIndicator, ProgressTrack } from "@/components/ui/progress";
 import { getDiscoveryCalendlyWithUtm } from "@/lib/calendly-utm";
 import { ResultsAssistant } from "@/components/results/ResultsAssistant";
+import { RoiExplorer } from "@/components/results/RoiExplorer";
 import { ResultsView } from "@/components/results/ResultsView";
 import type { M365GapAnalysisReport } from "@/lib/m365-gap-analysis";
 import { recommendedNextStepHeadline } from "@/lib/pdf/next-step-content";
@@ -104,6 +105,8 @@ export type ResultsReportViewProps = {
   bookDiscoveryHref?: string;
   /** Cross-product promotional card (e.g. Copilot CTA on AI results) */
   crossProductSlot?: ReactNode;
+  /** Firmographic industry; enables the per-task ROI explorer when modeled */
+  industry?: string | null;
 };
 
 export function ResultsReportView({
@@ -122,6 +125,7 @@ export function ResultsReportView({
   productType = "ai_readiness",
   bookDiscoveryHref: bookDiscoveryHrefProp,
   crossProductSlot,
+  industry,
 }: ResultsReportViewProps) {
   const overall = Math.round(scores.overall);
   const displayInsights = insights.slice(0, 8);
@@ -243,6 +247,8 @@ export function ResultsReportView({
           </p>
         </CardContent>
       </Card>
+
+      <RoiExplorer industry={industry} />
 
       {displayInsights.length > 0 ? (
         <Card>

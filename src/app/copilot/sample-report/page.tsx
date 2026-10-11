@@ -87,6 +87,7 @@ export default function CopilotSampleReportPage() {
           <ResultsReportView
             mode="sample"
             companyName={SAMPLE_COPILOT_INSURANCE_COMPANY.companyName}
+            industry="insurance"
             contactLine={`${SAMPLE_COPILOT_INSURANCE_COMPANY.city}, ${SAMPLE_COPILOT_INSURANCE_COMPANY.state} · ${SAMPLE_COPILOT_INSURANCE_COMPANY.contactName} · ${SAMPLE_COPILOT_INSURANCE_COMPANY.roleTitle}`}
             scores={result.scores}
             tier={result.tier}

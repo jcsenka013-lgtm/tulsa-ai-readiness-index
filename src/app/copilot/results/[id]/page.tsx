@@ -175,6 +175,7 @@ export default function CopilotResultsIdPage() {
       <ResultsReportView
         mode="live"
         companyName={row.company_name ?? "Your organization"}
+        industry={row.industry}
         scores={result.scores}
         tier={result.tier}
         recommendedNextStep={result.recommendedNextStep}

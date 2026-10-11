@@ -48,6 +48,7 @@ export default function SampleReportPage() {
           <ResultsReportView
             mode="sample"
             companyName={SAMPLE_DENTAL_COMPANY.companyName}
+            industry="dental"
             contactLine={`${SAMPLE_DENTAL_COMPANY.city}, ${SAMPLE_DENTAL_COMPANY.state} · ${SAMPLE_DENTAL_COMPANY.contactName} · ${SAMPLE_DENTAL_COMPANY.roleTitle}`}
             scores={result.scores}
             tier={result.tier}
